@@ -1,0 +1,47 @@
+:root{
+  --width: 30;
+}
+
+*{
+  box-sizing: border-box;
+}
+body{
+  margin: 0;
+  height: 100vh;
+}
+
+main{
+  /* width: 50%;
+  min-width: 600px; */
+  width: 600px;
+  margin: 240px auto;
+}
+
+header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#grid-wrapper{
+
+}
+#grid{
+  display: flex;
+  flex-wrap: wrap;
+  height: 600px;
+  width: 600px;
+
+}
+
+#grid div{
+  width: calc(100% / var(--width));
+  height: calc(100% / var(--width));
+  border: 1px solid lightgrey ;
+  flex-grow: 1;
+  font-size: small;
+}
+
+.border{
+  background-color: blueviolet;
+}
