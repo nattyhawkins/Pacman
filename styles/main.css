@@ -91,23 +91,20 @@ header{
 
 
 .border{
-  background-color: rgb(231, 30, 204);
-
   border: 0.5px solid black;
   border-radius: 3px;
 }
 
 /* sprite classes */
 .pacman{
-  background-image: url('/assets/basic-sprites.png');
+  background-image: url('../assets/basic-sprites.png');
   background-repeat: no-repeat;
   background-size: 400px;
   background-position: calc(100% / 19 * 18) calc(100% / 18 * 2);
-
 }
 
 .ghost{
-  background-image: url('/assets/neon-sprites.png');
+  background-image: url('../assets/neon-sprites.png');
   background-repeat: no-repeat;
   background-size: 400px;
 }

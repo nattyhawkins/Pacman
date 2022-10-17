@@ -33,7 +33,9 @@ function init() {
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   ]
   const grid = document.getElementById('grid')
+  const header = document.querySelector('header')
   const scoreDisplay = document.getElementById('score')
+  const livesDisplay = document.getElementById('lives')
 
   const width = 30
   const height = width
@@ -41,6 +43,10 @@ function init() {
   const cells = []
   let score = 0
   let nextPosition
+  let state = 'normal'
+  let lives = 3
+  let ghostTimers = []
+  let active = false
 
 
   class Player {
@@ -58,7 +64,7 @@ function init() {
     // removePlayer(position){
     //   cells[position].classList.remove(this.cssClass)
     // }
-    playerMovement(event){
+    playerMovement(event, player){
       let direction
       switch (event.keyCode){
         case 38:
@@ -74,14 +80,14 @@ function init() {
           direction = 'right'
       }
       //check gate
-      if (direction === 'right' && (pacman.currentPosition === 449 || pacman.currentPosition === 479)){
-        nextPosition = pacman.currentPosition - width + 1
-        handleMovement(pacman)
-      } else if (direction === 'left' && (pacman.currentPosition === 420 || pacman.currentPosition === 450)){
-        nextPosition = pacman.currentPosition + width - 1
-        handleMovement(pacman)
+      if (direction === 'right' && (player.currentPosition === 449 || player.currentPosition === 479)){
+        nextPosition = player.currentPosition - width + 1
+        handleMovement(player)
+      } else if (direction === 'left' && (player.currentPosition === 420 || player.currentPosition === 450)){
+        nextPosition = player.currentPosition + width - 1
+        handleMovement(player)
       } else {
-        handleMovement(pacman, direction)
+        handleMovement(player, direction)
       }
       //eat dot
       if (cells[pacman.currentPosition].firstChild){
@@ -89,29 +95,39 @@ function init() {
         score += 10
         scoreDisplay.innerText = score
       }
-    } 
+    }
+    
   }
 
   function handleMovement(sprite, direction){
-    if (direction === 'right'){
-      nextPosition = sprite.currentPosition + 1
-    } else if (direction === 'left'){
-      nextPosition = sprite.currentPosition - 1
-    } else if (direction === 'up'){
-      nextPosition = sprite.currentPosition - width
-    } else if (direction === 'down'){
-      nextPosition = sprite.currentPosition + width
-    }
-    if (!cells[nextPosition].classList.contains('border') && !cells[nextPosition].classList.contains('ghost')){
-      cells[sprite.currentPosition].classList.remove(sprite.cssClass)
-      // sprite.removePlayer(sprite.currentPosition)
-      sprite.addSprite(nextPosition)
-      sprite.currentPosition = nextPosition
-    } else {
-      sprite.currentDirection = false
+    if (active){
+      if (direction === 'right'){
+        nextPosition = sprite.currentPosition + 1
+      } else if (direction === 'left'){
+        nextPosition = sprite.currentPosition - 1
+      } else if (direction === 'up'){
+        nextPosition = sprite.currentPosition - width
+      } else if (direction === 'down'){
+        nextPosition = sprite.currentPosition + width
+      }
+      if (!cells[nextPosition].classList.contains('border') && !cells[nextPosition].classList.contains('ghost')){
+        cells[sprite.currentPosition].classList.remove(sprite.cssClass)
+        // sprite.removePlayer(sprite.currentPosition)
+        sprite.addSprite(nextPosition)
+        sprite.currentPosition = nextPosition
+      } else {
+        sprite.currentDirection = false
+      }
     }
   }  
   
+  function resetSprite(sprite){
+    cells[sprite.currentPosition].classList.remove(sprite.cssClass)
+    sprite.addSprite(sprite.startingPosition)
+    sprite.currentPosition = sprite.startingPosition
+    setTimeout(1000)
+  }
+
   class Ghost {
     constructor(cssClass, startingPosition, srcx, srcy, currentDirection){
       this.cssClass = cssClass
@@ -125,18 +141,43 @@ function init() {
       cells[position].classList.add(this.cssClass)
       cells[position].style.backgroundPosition = `${this.srcx} ${this.srcy}`
     }
-    moveRandom(){
-      const ghostTimer = setInterval(() => {
+    moveRandom(ghost){
+      stopGhosts()
+      const ghostTimer = setInterval(() => { 
         const directions = ['left', 'right', 'up', 'down']
         if (!this.currentDirection){
           this.currentDirection = directions[Math.floor(Math.random() * directions.length)]
         }
-        handleMovement(this, this.currentDirection)
+        handleMovement(ghost, ghost.currentDirection)
+        this.checkCollision(state)
       },200)
-      setTimeout(()=>{
-        clearInterval(ghostTimer)
-      },10000)
+      ghostTimers.push(ghostTimer)
     }
+    checkCollision(state){
+      const collision = Math.abs(this.currentPosition - pacman.currentPosition) === 1 || Math.abs(this.currentPosition - pacman.currentPosition) === width
+      if (collision){
+        if (state === 'normal'){
+          ghostTimers.forEach(timer => {
+            clearInterval(timer)
+          })
+          active = false
+          if (lives > 1){
+            setTimeout(() => {
+              lives--
+              livesDisplay.innerText = '💿'.repeat(lives)
+              ghosts.forEach(ghost => {
+                resetSprite(ghost)
+              })
+              resetSprite(pacman)
+            }, 2000)
+
+            
+          } else {
+            endGame('lost')
+          }
+        } 
+      }
+    } 
   }
 
   
@@ -178,24 +219,52 @@ function init() {
       })
     })
     pacman.addSprite(pacman.startingPosition)
-    for (const ghost of ghosts) {
+    ghosts.forEach(ghost => {
       ghost.addSprite(ghost.startingPosition)
-    }
+    })
 
   }
 
   createGrid()
-  ghosts.forEach(ghost => {
-    ghost.moveRandom()
+
+  function stopGhosts(){
+    if (ghostTimers.length >= 4){
+      ghostTimers.forEach(timer => {
+        clearInterval(timer)
+        ghostTimers = []
+      })
+    }
+  }
+
+  function startGame(e){
+    if (e.code === 'Space'){
+      stopGhosts()
+      active = true
+      ghosts.forEach((ghost) => {
+        ghost.moveRandom(ghost)
+      })
+    }
+  }
+ 
+  function endGame(result) {
+    grid.style.display = 'none'
+    header.style.display = 'none'
+    main.classList.replace
+    if (result === 'won'){
+      
+      
+    } else if (result === 'lost'){
+
+    }
+  }
+
+  
+  document.addEventListener('keydown', (event) => {
+    pacman.playerMovement(event, pacman)
   })
   
-  // if (i === cellCount / 2 || i === cellCount / 2 - width || i === cellCount / 2 - 1 || i === cellCount / 2 - 1 + width){
-  //   cell.classList.add('gate')    
-  // } else if (i < width ||  i > cellCount - width || i % width === width - 1 || i % width === 0) {
-  //   cell.classList.add('border')
+  document.addEventListener('keydown', startGame)
 
-  document.addEventListener('keydown', pacman.playerMovement)
-  
 }
 
 window.addEventListener('DOMContentLoaded', init)
