@@ -8,13 +8,48 @@
 body{
   margin: 0;
   height: 100vh;
+  background-color: black;
+  /* background-image: url('https://static.vecteezy.com/system/resources/thumbnails/002/018/568/original/spot-lighting-with-smoke-effect-on-a-black-background-free-video.jpg'); */
+  color: white;
+  font-family: Georgia, 'Times New Roman', Times, serif;
 }
 
+#page-wrapper{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-around;
+}
+#goldball{
+  display: inline;
+  min-width: 200px;
+  width: 40vh;
+  margin: -180px 50px 50px 100px;
+  transition: ease-in-out 2s;
+}
+#greenball{
+  display: inline;
+  min-width: 200px;
+  width: 40vh;
+  margin: 0 100px 250px 50px;
+  filter: hue-rotate(90deg);
+  transition: ease-in-out 2s;
+}
+.ball-wrapper{
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.ballString{
+  border-left: thick solid white;
+  width: calc()
+}
 main{
   /* width: 50%;
   min-width: 600px; */
   width: 600px;
-  margin: 240px auto;
+  margin: 100px auto;
+  
 }
 
 header{
@@ -31,17 +66,48 @@ header{
   flex-wrap: wrap;
   height: 600px;
   width: 600px;
-
+  background-color: black;
+  border-radius: 10px;
 }
 
 #grid div{
   width: calc(100% / var(--width));
   height: calc(100% / var(--width));
-  border: 1px solid lightgrey ;
   flex-grow: 1;
   font-size: small;
+  /* border: 1px solid lightgrey; */
 }
 
+.track, .gate{
+  background-color: black;
+  text-align: center;
+}
+.dot{
+  border: 1px solid greenyellow;
+  background-color: greenyellow;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+
 .border{
-  background-color: blueviolet;
+  background-color: rgb(231, 30, 204);
+
+  border: 0.5px solid black;
+  border-radius: 3px;
+}
+
+/* sprite classes */
+.pacman{
+  background-image: url('/assets/basic-sprites.png');
+  background-repeat: no-repeat;
+  background-size: 400px;
+  background-position: calc(100% / 19 * 18) calc(100% / 18 * 2);
+
+}
+
+.ghost{
+  background-image: url('/assets/neon-sprites.png');
+  background-repeat: no-repeat;
+  background-size: 400px;
 }
