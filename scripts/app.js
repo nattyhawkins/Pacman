@@ -33,7 +33,8 @@ function init() {
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   ]
   const grid = document.getElementById('grid')
-  const header = document.querySelector('header')
+  const scoreBoard = document.querySelector('#scoreBoard')
+  const main = document.querySelector('main')
   const scoreDisplay = document.getElementById('score')
   const livesDisplay = document.getElementById('lives')
 
@@ -226,6 +227,7 @@ function init() {
   }
 
   createGrid()
+  
 
   function stopGhosts(){
     if (ghostTimers.length >= 4){
@@ -248,16 +250,18 @@ function init() {
  
   function endGame(result) {
     grid.style.display = 'none'
-    header.style.display = 'none'
-    main.classList.replace
+    scoreBoard.style.display = 'none'
+    const message = document.createElement('p')
+    main.appendChild(message)
+    // main.classList.replace
     if (result === 'won'){
-      
+      message.innerText = 'Congratulations!\nYou completed Disco Pacman!'
       
     } else if (result === 'lost'){
-
+      message.innerText = 'Lights on and everyone out!'
     }
   }
-
+  // endGame('lost')
   
   document.addEventListener('keydown', (event) => {
     pacman.playerMovement(event, pacman)
