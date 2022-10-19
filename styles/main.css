@@ -30,6 +30,8 @@ body{
   width: 100%;
 }
 
+
+
 #page-wrapper{
   display: flex;
   flex-direction: column;
@@ -63,9 +65,32 @@ p{
   margin-top: 0;
 }
 
-#grid-wrapper{
+.grid-wrapper{
   max-width: 600px;
 }
+
+.grid-wrapper-end{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.grid-wrapper-end p {
+  margin: 50px 0;
+}
+.grid-wrapper-end span:not(#funk){
+  font-size: 70px;
+  color: gold;
+}
+
+#funk{
+  color: magenta;
+  font-size: 20px;
+  margin-bottom: -10px;
+}
+
+
 #grid{
   display: flex;
   flex-wrap: wrap;
@@ -73,6 +98,7 @@ p{
   width: 600px;
   background-color: black;
   border-radius: 10px;
+
 }
 
 #grid div{
@@ -80,12 +106,13 @@ p{
   height: calc(100% / var(--width));
   flex-grow: 1;
   font-size: small;
-  
+  /* border: 1px solid lightgrey; */
 }
 
 .track, .gate{
   background-color: black;
   text-align: center;
+  
 }
 .dot{
   border: 1px solid greenyellow;
@@ -93,7 +120,6 @@ p{
   border-radius: 50%;
   display: inline-block;
 }
-
 
 .border{
   border: 0.5px solid black;
@@ -105,15 +131,33 @@ p{
   min-width: 200px;
   width: 40vh;
   margin: -200px 50px 0 50px;
-  transition: ease-in-out 2s;
+  /* transition: ease-in-out 2s; */
+  filter: brightness(150%);
 }
 #rightball{
   display: none;
   min-width: 200px;
   width: 40vh;
   margin: -30px 50px 0 50px;
-  transition: ease-in-out 2s;
-  filter: hue-rotate(90deg);
+  /* transition: ease-in-out 2s; */
+  /* filter: hue-rotate(90deg); */
+  filter: grayscale() brightness(150%);
+}
+
+button{
+  margin-top: 30px;
+  padding: 5px 10px;
+  background-color: gold;
+  color:black;
+  border-radius: 6px;
+  font-weight: 900;
+  transition-duration: 0.4s;
+}
+
+button:hover{
+  background-color: black;
+  color: gold;
+  
 }
 
 .pacman{
@@ -127,6 +171,22 @@ p{
   background-image: url('../assets/neon-sprites.png');
   background-repeat: no-repeat;
   background-size: 400px;
+}
+.potion{
+  /* 732x400 */
+  /* background-image: url('../assets/potion.png');
+  background-repeat: no-repeat;
+  background-size: 490px;
+  background-position: calc(89.5%) calc(95%);
+ */
+  background-image: url('../assets/disco-potion.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 14px;
+  /* transform: rotate(45deg);
+  position: relative;
+  overflow: hidden; */
+  /* background-position: calc(89.5%) calc(95%); */
 }
 
 
