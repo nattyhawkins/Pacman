@@ -39,18 +39,18 @@ function init() {
   const scoreDisplay = document.getElementById('score')
   const livesDisplay = document.getElementById('lives')
   let borderCells
-  
+  let collision
   
 
 
   const width = 30
   // const height = width
   // const cellCount = width * height
-  const cells = []
+  let cells = []
   let score = 0
   let nextPosition
   let state = 'normal'
-  let lives = 3
+  let lives = 1
   let ghostTimers = []
   let active = false
   let highscore
@@ -66,7 +66,6 @@ function init() {
       this.srcx = srcx
       this.srcy = srcy
       this.currentDirection = currentDirection
-      this.previousDirection = currentDirection
     }
     eatDot(){
       if (cells[pacman.currentPosition].firstChild){
@@ -95,16 +94,16 @@ function init() {
       // let direction
       switch (event.keyCode){
         case 38:
-          this.currentDirection = 'up'
+          this.newDirection = 'up'
           break
         case 40:
-          this.currentDirection = 'down'
+          this.newDirection = 'down'
           break
         case 37: 
-          this.currentDirection = 'left'
+          this.newDirection = 'left'
           break
         case 39:
-          this.currentDirection = 'right'
+          this.newDirection = 'right'
       }
       clearInterval(pacmanTimer)
       pacmanTimer = setInterval(()=>{
@@ -157,7 +156,6 @@ function init() {
     cells[sprite.currentPosition].classList.remove(sprite.cssClass)
     sprite.addSprite(sprite.startingPosition)
     sprite.currentPosition = sprite.startingPosition
-    setTimeout(1000)
   }
 
  
@@ -193,7 +191,7 @@ function init() {
       ghostTimers.push(ghostTimer)
     }
     checkCollision(state){
-      const collision = Math.abs(this.currentPosition - pacman.currentPosition) === 1 || Math.abs(this.currentPosition - pacman.currentPosition) === width
+      collision = Math.abs(this.currentPosition - pacman.currentPosition) === 1 || Math.abs(this.currentPosition - pacman.currentPosition) === width
       if (collision){
         if (state === 'normal'){
           ghostTimers.forEach(timer => {
@@ -208,9 +206,11 @@ function init() {
                 ghost.resetGhost()
               })
               resetSprite(pacman)
+              collision = false
             }, 2000)            
           } else {
             endGame('lost')
+            collision = false
           }
         } else if (state === 'super'){
           score += 500
@@ -298,8 +298,6 @@ function init() {
         i++
       })
     })
-    
-    
     ghosts.forEach(ghost => {
       ghost.addSprite(ghost.startingPosition)
     })
@@ -321,36 +319,43 @@ function init() {
   function resetGame(){
     gridWrapper.classList.remove('grid-wrapper-end')
     while (gridWrapper.lastChild.nodeName === 'P'){
-      console.log('remove p')
       gridWrapper.removeChild(gridWrapper.lastChild)
     }
     grid.style.display = 'flex'
+    cells = []
+    console.log(pacman.startingPosition)
+    console.log(pacman.currentPosition)
+    createGrid()
     scoreBoard.style.display = 'flex'
     startButton.innerText = 'LET\'S BOOGIE'
     lives = 3
     score = 0
-    console.log(lives)
-    console.log(score)
     updateDisplay()
   }
 
   function startGame(e){
-    if (gridWrapper.classList.contains('grid-wrapper-end')){
-      resetGame()
-    }
-    if (e.code === 'Space' || e.type === 'click'){
-      stopGhosts()
-      active = true
-      pacman.addSprite(pacman.startingPosition)
-      ghosts.forEach((ghost) => {
-        ghost.moveRandom(ghost)
-      })
+    if (!active && !collision){
+      if (gridWrapper.classList.contains('grid-wrapper-end')){
+        resetGame()
+      }
+      if (e.code === 'Space' || e.type === 'click'){
+        stopGhosts()
+        active = true
+        
+        pacman.addSprite(pacman.startingPosition)
+        ghosts.forEach((ghost) => {
+          ghost.moveRandom(ghost)
+        })
+      }
     }
   }
  
   function endGame(result) {
     setTimeout(() => {
       grid.style.display = 'none'
+      while (grid.lastChild){
+        grid.removeChild(grid.lastChild)
+      }
       scoreBoard.style.display = 'none'
       gridWrapper.classList.add('grid-wrapper-end')
       const endMessage = document.createElement('p')
@@ -391,7 +396,6 @@ function init() {
     }
   }
 
-  
   document.addEventListener('keydown', (event) => {
     pacman.playerMovement(event, pacman)
   })
