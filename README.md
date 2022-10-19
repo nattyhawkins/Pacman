@@ -37,3 +37,43 @@ playerMovement(event){
         scoreDisplay.innerText = score
       }
     } 
+
+
+
+    playerMovement(event, player){
+      // let previousDirection = direction
+      // let direction
+      switch (event.keyCode){
+        case 38:
+          this.newDirection = 'up'
+          break
+        case 40:
+          this.newDirection = 'down'
+          break
+        case 37: 
+          this.newDirection = 'left'
+          break
+        case 39:
+          this.newDirection = 'right'
+      }
+      clearInterval(pacmanTimer)
+      pacmanTimer = setInterval(()=>{
+        //check gate
+        if (this.currentDirection === 'right' && (player.currentPosition === 449 || player.currentPosition === 479)){
+          nextPosition = player.currentPosition - width + 1
+          handleMovement(player)
+        } else if (this.currentDirection === 'left' && (player.currentPosition === 420 || player.currentPosition === 450)){
+          nextPosition = player.currentPosition + width - 1
+          handleMovement(player)
+        //for any regular move, restricting ghost pen
+        } else if (!(this.currentDirection === 'down' && (player.currentPosition === 344 || player.currentPosition === 345))) {
+          handleMovement(player, this.currentDirection)
+          if (this.currentDirection){
+            this.previousDirection = this.currentDirection
+          } else {
+            this.currentDirection = this.previousDirection
+          }
+        }
+        this.eatDot()
+      }, 170) 
+    }

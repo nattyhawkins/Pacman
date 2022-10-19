@@ -23,7 +23,7 @@ function init() {
     [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
     [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
     [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
-    [0, 8, 1, 1, 0, 0, 1, 1, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 8, 0],
+    [0, 8, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 8, 0],
     [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
     [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
     [0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0],
@@ -48,7 +48,6 @@ function init() {
   // const cellCount = width * height
   let cells = []
   let score = 0
-  let nextPosition
   let state = 'normal'
   let lives = 1
   let ghostTimers = []
@@ -59,13 +58,15 @@ function init() {
 
 
   class Player {
-    constructor(cssClass, startingPosition, srcx, srcy, currentDirection) {
+    constructor(cssClass, startingPosition, nextPosition, srcx, srcy, currentDirection) {
       this.cssClass = cssClass
       this.startingPosition = startingPosition
       this.currentPosition = startingPosition
       this.srcx = srcx
       this.srcy = srcy
       this.currentDirection = currentDirection
+      this.newDirection = currentDirection
+      this.nextPosition = nextPosition
     }
     eatDot(){
       if (cells[pacman.currentPosition].firstChild){
@@ -89,9 +90,45 @@ function init() {
     // removePlayer(position){
     //   cells[position].classList.remove(this.cssClass) 
     // }
-    playerMovement(event, player){
-      // let previousDirection = direction
-      // let direction
+    // playerMovement(event, player){
+    //   // let previousDirection = direction
+    //   // let direction
+    //   switch (event.keyCode){
+    //     case 38:
+    //       this.newDirection = 'up'
+    //       break
+    //     case 40:
+    //       this.newDirection = 'down'
+    //       break
+    //     case 37: 
+    //       this.newDirection = 'left'
+    //       break
+    //     case 39:
+    //       this.newDirection = 'right'
+    //       break
+    //   }
+    //   clearInterval(pacmanTimer)
+    //   pacmanTimer = setInterval(()=>{
+    //     //check gate
+    //     if (this.currentDirection === 'right' && (player.currentPosition === 449 || player.currentPosition === 479)){
+    //       nextPosition = player.currentPosition - width + 1
+    //       handleMovement(player)
+    //     } else if (this.currentDirection === 'left' && (player.currentPosition === 420 || player.currentPosition === 450)){
+    //       nextPosition = player.currentPosition + width - 1
+    //       handleMovement(player)
+    //     //for any regular move, restricting ghost pen
+    //     } else if (!(this.currentDirection === 'down' && (player.currentPosition === 344 || player.currentPosition === 345))) {
+    //       handleMovement(player, this.currentDirection)
+    //       if (this.currentDirection){
+    //         this.previousDirection = this.currentDirection
+    //       } else {
+    //         this.currentDirection = this.previousDirection
+    //       }
+    //     }
+    //     this.eatDot()
+    //   }, 170) 
+    // }
+    testNewDirection(event, player){
       switch (event.keyCode){
         case 38:
           this.newDirection = 'up'
@@ -104,50 +141,65 @@ function init() {
           break
         case 39:
           this.newDirection = 'right'
+          break
       }
+      this.nextPosition = getNextPosition(player, player.newDirection)
+      if (!cells[this.nextPosition].classList.contains('border') && !cells[this.nextPosition].classList.contains('ghost')){
+        this.currentDirection = this.newDirection
+      }
+    }
+
+    moveCurrentDirection(player){
       clearInterval(pacmanTimer)
       pacmanTimer = setInterval(()=>{
         //check gate
-        if (this.currentDirection === 'right' && (player.currentPosition === 449 || player.currentPosition === 479)){
-          nextPosition = player.currentPosition - width + 1
+        this.eatDot()
+        if (this.currentDirection === 'right' && (this.currentPosition === 449 || this.currentPosition === 479)){
+          this.nextPosition = this.currentPosition - width + 1
           handleMovement(player)
-        } else if (this.currentDirection === 'left' && (player.currentPosition === 420 || player.currentPosition === 450)){
-          nextPosition = player.currentPosition + width - 1
+        } else if (this.currentDirection === 'left' && (this.currentPosition === 420 || this.currentPosition === 450)){
+          this.nextPosition = this.currentPosition + width - 1
           handleMovement(player)
         //for any regular move, restricting ghost pen
-        } else if (!(this.currentDirection === 'down' && (player.currentPosition === 344 || player.currentPosition === 345))) {
+        } else if (!(this.currentDirection === 'down' && (this.currentPosition === 344 || this.currentPosition === 345))) {
           handleMovement(player, this.currentDirection)
-          if (this.currentDirection){
-            this.previousDirection = this.currentDirection
-          } else {
-            this.currentDirection = this.previousDirection
-          }
+          // if (player.currentDirection){
+          //   this.previousDirection = this.currentDirection
+          // } else {
+          //   this.currentDirection = this.previousDirection
+          // }
         }
-        this.eatDot()
       }, 170) 
     }
     
   }
 
+  function getNextPosition(sprite, direction){
+    if (direction === 'right'){
+      sprite.nextPosition = sprite.currentPosition + 1
+    } else if (direction === 'left'){
+      sprite.nextPosition = sprite.currentPosition - 1
+    } else if (direction === 'up'){
+      sprite.nextPosition = sprite.currentPosition - width
+    } else if (direction === 'down'){
+      sprite.nextPosition = sprite.currentPosition + width
+    }
+    return sprite.nextPosition
+  }
+
   function handleMovement(sprite, direction){
-    if (active){
-      if (direction === 'right'){
-        nextPosition = sprite.currentPosition + 1
-      } else if (direction === 'left'){
-        nextPosition = sprite.currentPosition - 1
-      } else if (direction === 'up'){
-        nextPosition = sprite.currentPosition - width
-      } else if (direction === 'down'){
-        nextPosition = sprite.currentPosition + width
+    if (active){ 
+      if (direction){
+        sprite.nextPosition = getNextPosition(sprite, direction)
       }
-      if (!cells[nextPosition].classList.contains('border') && !cells[nextPosition].classList.contains('ghost')){
-        cells[sprite.currentPosition].classList.remove(sprite.cssClass)
-        // sprite.removePlayer(sprite.currentPosition)
-        sprite.addSprite(nextPosition)
-        sprite.currentPosition = nextPosition
-      } else {
+      if (cells[sprite.nextPosition].classList.contains('border') || cells[sprite.nextPosition].classList.contains('ghost') || cells[sprite.nextPosition].classList.contains('pacman')){
         sprite.currentDirection = false
-        // return false
+      } else if (sprite.currentDirection === 'down' && (sprite.currentPosition === 344 || sprite.currentPosition === 345)){
+        sprite.currentDirection = false
+      } else {
+        cells[sprite.currentPosition].classList.remove(sprite.cssClass)
+        sprite.addSprite(sprite.nextPosition)
+        sprite.currentPosition = sprite.nextPosition
       }
     }
   }  
@@ -161,13 +213,16 @@ function init() {
  
 
   class Ghost {
-    constructor(cssClass, startingPosition, srcx, srcy, currentDirection){
+    constructor(cssClass, startingPosition, nextPosition, srcx, srcy, currentDirection, delay, exitSequence){
       this.cssClass = cssClass
       this.startingPosition = startingPosition
+      this.nextPosition = nextPosition
       this.currentPosition = startingPosition
       this.srcx = srcx
       this.srcy = srcy
       this.currentDirection = currentDirection
+      this.delay = delay
+      this.exitSequence = exitSequence
     }
     addSprite(position){
       cells[position].classList.add(this.cssClass)
@@ -178,17 +233,32 @@ function init() {
       this.addSprite(this.startingPosition)
       this.currentPosition = this.startingPosition
     }
-    moveRandom(ghost){
-      stopGhosts()
-      const ghostTimer = setInterval(() => { 
-        this.checkCollision(state)
-        const directions = ['left', 'right', 'up', 'down']
-        if (!this.currentDirection){
-          this.currentDirection = directions[Math.floor(Math.random() * directions.length)]
+    exitPen(ghost){
+      stopGhostTimer(ghostTimers)
+      let i = 0
+      const ghostTimer = setInterval(() => {
+        if (i < ghost.exitSequence.length) {
+          handleMovement(ghost, ghost.exitSequence[i])
+          i++
+        } else {
+          this.moveRandom(ghost)
         }
-        handleMovement(ghost, ghost.currentDirection)
-      },200)
+      }, 200)
+      // exitTimers.push(exitTimer)
       ghostTimers.push(ghostTimer)
+    }
+    moveRandom(ghost){
+      // stopGhostTimer(ghostTimers)
+      // const ghostTimer = setInterval(() => { 
+      this.checkCollision(state)
+      const directions = ['left', 'right', 'up', 'down']
+      if (!this.currentDirection){
+        this.currentDirection = directions[Math.floor(Math.random() * directions.length)]
+        console.log(this.currentDirection)
+      }
+      handleMovement(ghost, ghost.currentDirection)
+      // },200)
+      // ghostTimers.push(ghostTimer)
     }
     checkCollision(state){
       collision = Math.abs(this.currentPosition - pacman.currentPosition) === 1 || Math.abs(this.currentPosition - pacman.currentPosition) === width
@@ -204,6 +274,9 @@ function init() {
               updateDisplay()
               ghosts.forEach(ghost => {
                 ghost.resetGhost()
+              })
+              ghosts.forEach(ghost => {
+                ghost.exitPen()
               })
               resetSprite(pacman)
               collision = false
@@ -232,7 +305,7 @@ function init() {
       ghost.srcy = '61%'
     })
     const tileTimer = setInterval(() => {
-      addTileColours('violet', 'cyan', 'lightgreen', 'white')
+      addTileColours('aquamarine', 'cyan', 'lime', 'white')
     }, 500)
     setTimeout(() => {
       clearInterval(tileTimer)
@@ -250,13 +323,14 @@ function init() {
   }
 
 
-  const pacman = new Player('pacman', 450, '94.4%', '11.1%', 'right')
+  const pacman = new Player('pacman', 450, 451,'94.4%', '11.1%', 'right')
   const ghosts = []
-  const ghost1 = new Ghost('ghost', 463, '71.9%', '0.5%', 'up')
-  const ghost2 = new Ghost('ghost', 464, '77.5%', '0.5%', 'up')
-  const ghost3 = new Ghost('ghost', 465, '83.1%', '0.5%', 'up')
-  const ghost4 = new Ghost('ghost', 466, '88.7%', '0.5%', 'up')
+  const ghost1 = new Ghost('ghost', 463, 464, '71.9%', '0.5%', 'left', 4000, ['right','up', 'up', 'up', 'up'])
+  const ghost2 = new Ghost('ghost', 464, 434, '77.5%', '0.5%', 'up', 2000, ['up'])
+  const ghost3 = new Ghost('ghost', 465, 435, '83.1%', '0.5%', 'up', 0, ['up'])
+  const ghost4 = new Ghost('ghost', 466, 465, '88.7%', '0.5%', 'right', 6000, ['left', 'up', 'up', 'up', 'up'])
   ghosts.push(ghost1, ghost2, ghost3, ghost4)
+  // ghosts.push(ghost3)
 
 
   function addTileColours(one, two, three, four){
@@ -278,6 +352,7 @@ function init() {
           cell.classList.add('border')
           borderCells = document.querySelectorAll('.border')
           addTileColours('magenta', 'blue', 'lightgreen', 'violet')
+          // addTileColours('lightgreen', 'cyan', 'lime', 'white')
         } if (number === 1 || number === 3){
           cell.classList.add('track')
           // if (i !== pacman.startingPosition){
@@ -307,11 +382,11 @@ function init() {
   createGrid()
 
 
-  function stopGhosts(){
-    if (ghostTimers.length >= 4){
-      ghostTimers.forEach(timer => {
-        clearInterval(timer)
-        ghostTimers = []
+  function stopGhostTimer(timer){
+    if (timer.length > 4){
+      timer.forEach(one => {
+        clearInterval(one)
+        timer = []
       })
     }
   }
@@ -323,11 +398,9 @@ function init() {
     }
     grid.style.display = 'flex'
     cells = []
-    console.log(pacman.startingPosition)
-    console.log(pacman.currentPosition)
     createGrid()
     scoreBoard.style.display = 'flex'
-    startButton.innerText = 'LET\'S BOOGIE'
+    startButton.innerText = 'GO'
     lives = 3
     score = 0
     updateDisplay()
@@ -339,12 +412,15 @@ function init() {
         resetGame()
       }
       if (e.code === 'Space' || e.type === 'click'){
-        stopGhosts()
+        stopGhostTimer(ghostTimers)
         active = true
         
         pacman.addSprite(pacman.startingPosition)
+        pacman.moveCurrentDirection(pacman)
         ghosts.forEach((ghost) => {
-          ghost.moveRandom(ghost)
+          setTimeout(() => {
+            ghost.exitPen(ghost)
+          }, ghost.delay)
         })
       }
     }
@@ -374,11 +450,11 @@ function init() {
           message2.innerHTML = `So, you rocked the boat... but you're gonna have to keep working on those moves to compete with the elite<br/><span>${highscore}</span><br/>Highscore`
         }
       } else if (result === 'lost'){
-        endMessage.innerHTML = 'Lights on and everyone out!'
+        endMessage.innerHTML = 'Lights on!'
         finalScore.innerHTML = `Looks like you left <span id="funk"> The Funk </span> at home tonight! You got</br><span> ${score} </span></br>points`
         if (gotHighscore()){
           localStorage.setItem('highscore', score)
-          message2.innerHTML = `Highscore!! Looks like the dancing queens all stayed home tonight but you've set the bar<br/><span>${highscore}</span><br/>Highscore`
+          message2.innerHTML = `Highscore!! Looks like the dancing queens all stayed home tonight cus you still came out on top...<br/><span>${highscore}</span><br/>Highscore`
         } else {
           message2.innerHTML = `You gotta keep working on those moves to compete with the elite...<br/><span>${highscore}</span><br/>Highscore`
         }
@@ -397,7 +473,7 @@ function init() {
   }
 
   document.addEventListener('keydown', (event) => {
-    pacman.playerMovement(event, pacman)
+    pacman.testNewDirection(event, pacman)
   })
   
   document.addEventListener('keydown', startGame)
