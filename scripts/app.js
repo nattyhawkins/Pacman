@@ -15,7 +15,7 @@ function init() {
     [0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-    [3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3],
+    [3, 1, 1, 1, 1, 8, 1, 1, 1, 1, 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3],
     [3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3],
     [0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
@@ -35,13 +35,18 @@ function init() {
   const grid = document.getElementById('grid')
   const scoreBoard = document.querySelector('#scoreBoard')
   const gridWrapper = document.querySelector('.grid-wrapper')
+  const audio = document.querySelector('audio')
+  const speakers = document.querySelectorAll('.speaker')
   const startButton = document.querySelector('button')
   const scoreDisplay = document.getElementById('score')
   const livesDisplay = document.getElementById('lives')
+
+  let tracks = ['DiscoInferno', 'Funkytown', 'LeFreak', 'StayinAlive', 'MidasTouch', 'NightFever']
+  let track
+ 
+
   let borderCells
   let collision
-  
-
 
   const width = 30
   // const height = width
@@ -49,13 +54,11 @@ function init() {
   let cells = []
   let score = 0
   let state = 'normal'
-  let lives = 1
+  let lives = 3
   let ghostTimers = []
   let active = false
   let highscore
   let pacmanTimer
-
-
 
   class Player {
     constructor(cssClass, startingPosition, nextPosition, srcx, srcy, currentDirection) {
@@ -67,6 +70,10 @@ function init() {
       this.currentDirection = currentDirection
       this.newDirection = currentDirection
       this.nextPosition = nextPosition
+    }
+    resetPacman(){
+      cells[this.currentPosition].classList.remove(this.cssClass)
+      this.currentPosition = this.startingPosition
     }
     eatDot(){
       if (cells[pacman.currentPosition].firstChild){
@@ -87,47 +94,7 @@ function init() {
       cells[position].classList.add(this.cssClass)
       cells[position].style.backgroundPosition = `${this.srcx} ${this.srcy}`
     }
-    // removePlayer(position){
-    //   cells[position].classList.remove(this.cssClass) 
-    // }
-    // playerMovement(event, player){
-    //   // let previousDirection = direction
-    //   // let direction
-    //   switch (event.keyCode){
-    //     case 38:
-    //       this.newDirection = 'up'
-    //       break
-    //     case 40:
-    //       this.newDirection = 'down'
-    //       break
-    //     case 37: 
-    //       this.newDirection = 'left'
-    //       break
-    //     case 39:
-    //       this.newDirection = 'right'
-    //       break
-    //   }
-    //   clearInterval(pacmanTimer)
-    //   pacmanTimer = setInterval(()=>{
-    //     //check gate
-    //     if (this.currentDirection === 'right' && (player.currentPosition === 449 || player.currentPosition === 479)){
-    //       nextPosition = player.currentPosition - width + 1
-    //       handleMovement(player)
-    //     } else if (this.currentDirection === 'left' && (player.currentPosition === 420 || player.currentPosition === 450)){
-    //       nextPosition = player.currentPosition + width - 1
-    //       handleMovement(player)
-    //     //for any regular move, restricting ghost pen
-    //     } else if (!(this.currentDirection === 'down' && (player.currentPosition === 344 || player.currentPosition === 345))) {
-    //       handleMovement(player, this.currentDirection)
-    //       if (this.currentDirection){
-    //         this.previousDirection = this.currentDirection
-    //       } else {
-    //         this.currentDirection = this.previousDirection
-    //       }
-    //     }
-    //     this.eatDot()
-    //   }, 170) 
-    // }
+  
     testNewDirection(event, player){
       switch (event.keyCode){
         case 38:
@@ -146,6 +113,18 @@ function init() {
       this.nextPosition = getNextPosition(player, player.newDirection)
       if (!cells[this.nextPosition].classList.contains('border') && !cells[this.nextPosition].classList.contains('ghost')){
         this.currentDirection = this.newDirection
+      } else {
+        clearInterval(this.nextTurn)
+        this.nextTurn = setInterval(() => {
+          this.nextPosition = getNextPosition(player, player.newDirection)
+          if (!cells[this.nextPosition].classList.contains('border') && !cells[this.nextPosition].classList.contains('ghost')){
+            this.currentDirection = this.newDirection
+            clearInterval(this.nextTurn)
+          }
+        }, 50)
+        setTimeout(() => {
+          clearInterval(this.nextTurn)
+        }, 350)
       }
     }
 
@@ -163,15 +142,12 @@ function init() {
         //for any regular move, restricting ghost pen
         } else if (!(this.currentDirection === 'down' && (this.currentPosition === 344 || this.currentPosition === 345))) {
           handleMovement(player, this.currentDirection)
-          // if (player.currentDirection){
-          //   this.previousDirection = this.currentDirection
-          // } else {
-          //   this.currentDirection = this.previousDirection
+          // if (!this.currentDirection){
+          //   this.currentDirection = this.newDirection
           // }
         }
       }, 170) 
     }
-    
   }
 
   function getNextPosition(sprite, direction){
@@ -203,14 +179,6 @@ function init() {
       }
     }
   }  
-  
-  function resetSprite(sprite){
-    cells[sprite.currentPosition].classList.remove(sprite.cssClass)
-    sprite.addSprite(sprite.startingPosition)
-    sprite.currentPosition = sprite.startingPosition
-  }
-
- 
 
   class Ghost {
     constructor(cssClass, startingPosition, nextPosition, srcx, srcy, currentDirection, delay, exitSequence){
@@ -223,6 +191,7 @@ function init() {
       this.currentDirection = currentDirection
       this.delay = delay
       this.exitSequence = exitSequence
+    
     }
     addSprite(position){
       cells[position].classList.add(this.cssClass)
@@ -232,11 +201,12 @@ function init() {
       cells[this.currentPosition].classList.remove(this.cssClass)
       this.addSprite(this.startingPosition)
       this.currentPosition = this.startingPosition
+      this.currentDirection = 'up'
     }
     exitPen(ghost){
-      stopGhostTimer(ghostTimers)
+      clearInterval(this.timer)
       let i = 0
-      const ghostTimer = setInterval(() => {
+      this.timer = setInterval(() => {
         if (i < ghost.exitSequence.length) {
           handleMovement(ghost, ghost.exitSequence[i])
           i++
@@ -244,21 +214,16 @@ function init() {
           this.moveRandom(ghost)
         }
       }, 200)
-      // exitTimers.push(exitTimer)
-      ghostTimers.push(ghostTimer)
+      ghostTimers.push(this.timer)
+      console.log(ghostTimers)
     }
     moveRandom(ghost){
-      // stopGhostTimer(ghostTimers)
-      // const ghostTimer = setInterval(() => { 
       this.checkCollision(state)
       const directions = ['left', 'right', 'up', 'down']
       if (!this.currentDirection){
         this.currentDirection = directions[Math.floor(Math.random() * directions.length)]
-        console.log(this.currentDirection)
       }
       handleMovement(ghost, ghost.currentDirection)
-      // },200)
-      // ghostTimers.push(ghostTimer)
     }
     checkCollision(state){
       collision = Math.abs(this.currentPosition - pacman.currentPosition) === 1 || Math.abs(this.currentPosition - pacman.currentPosition) === width
@@ -267,28 +232,28 @@ function init() {
           ghostTimers.forEach(timer => {
             clearInterval(timer)
           })
+          ghostTimers = []
           active = false
           if (lives > 1){
             setTimeout(() => {
               lives--
               updateDisplay()
+              pickNewTrack()
               ghosts.forEach(ghost => {
                 ghost.resetGhost()
               })
-              ghosts.forEach(ghost => {
-                ghost.exitPen()
-              })
-              resetSprite(pacman)
+              pacman.resetPacman()
               collision = false
-            }, 2000)            
+            }, 1000) 
           } else {
             endGame('lost')
-            collision = false
-          }
+          }          
         } else if (state === 'super'){
           score += 500
           updateDisplay()
           this.resetGhost()
+          const ghost = this
+          this.exitPen(ghost)
         }
       }
     } 
@@ -305,7 +270,7 @@ function init() {
       ghost.srcy = '61%'
     })
     const tileTimer = setInterval(() => {
-      addTileColours('aquamarine', 'cyan', 'lime', 'white')
+      addTileColours('lime', 'cyan', 'violet', 'aquamarine')
     }, 500)
     setTimeout(() => {
       clearInterval(tileTimer)
@@ -322,13 +287,12 @@ function init() {
     }, 10000)
   }
 
-
   const pacman = new Player('pacman', 450, 451,'94.4%', '11.1%', 'right')
   const ghosts = []
-  const ghost1 = new Ghost('ghost', 463, 464, '71.9%', '0.5%', 'left', 4000, ['right','up', 'up', 'up', 'up'])
+  const ghost1 = new Ghost('ghost', 463, 464, '71.9%', '0.5%', 'up', 4000, ['right','up'])
   const ghost2 = new Ghost('ghost', 464, 434, '77.5%', '0.5%', 'up', 2000, ['up'])
   const ghost3 = new Ghost('ghost', 465, 435, '83.1%', '0.5%', 'up', 0, ['up'])
-  const ghost4 = new Ghost('ghost', 466, 465, '88.7%', '0.5%', 'right', 6000, ['left', 'up', 'up', 'up', 'up'])
+  const ghost4 = new Ghost('ghost', 466, 465, '88.7%', '0.5%', 'up', 6000, ['left', 'up'])
   ghosts.push(ghost1, ghost2, ghost3, ghost4)
   // ghosts.push(ghost3)
 
@@ -380,16 +344,16 @@ function init() {
   }
 
   createGrid()
-
-
-  function stopGhostTimer(timer){
-    if (timer.length > 4){
-      timer.forEach(one => {
-        clearInterval(one)
-        timer = []
-      })
-    }
-  }
+  pickNewTrack()
+  console.log(tracks)
+  // function stopGhostTimer(timer){
+  //   if (timer.length >= 4){
+  //     timer.forEach(one => {
+  //       clearInterval(one)
+  //       timer = []
+  //     })
+  //   }
+  // }
 
   function resetGame(){
     gridWrapper.classList.remove('grid-wrapper-end')
@@ -408,11 +372,16 @@ function init() {
 
   function startGame(e){
     if (!active && !collision){
+      console.log(active)
       if (gridWrapper.classList.contains('grid-wrapper-end')){
         resetGame()
       }
       if (e.code === 'Space' || e.type === 'click'){
-        stopGhostTimer(ghostTimers)
+        ghostTimers.forEach(timer => {
+          clearInterval(timer)
+        })
+        ghostTimers = []
+        console.log(ghostTimers)
         active = true
         
         pacman.addSprite(pacman.startingPosition)
@@ -428,6 +397,11 @@ function init() {
  
   function endGame(result) {
     setTimeout(() => {
+      ghosts.forEach(ghost => {
+        ghost.resetGhost()
+      })
+      pacman.resetPacman()
+      collision = false
       grid.style.display = 'none'
       while (grid.lastChild){
         grid.removeChild(grid.lastChild)
@@ -445,9 +419,11 @@ function init() {
         finalScore.innerHTML = `You completed Disco Pacman and scored</br><span> ${score} </span></br>points`
         if (gotHighscore()){
           localStorage.setItem('highscore', score)
-          message2.innerHTML = `New Highscore! There ain't no stopping you now - you've been been corwned le freak of the week! Conratulations!<br/><span>${highscore}</span><br/>Highscore`
+          message2.innerHTML = `New Highscore! There ain't no stopping you now - you've been been crowned le freak of the week! Conratulations!<br/><span>${highscore}</span><br/>Highscore`
+          playNewTrack('AintNoStoppingUsNow')
         } else {
           message2.innerHTML = `So, you rocked the boat... but you're gonna have to keep working on those moves to compete with the elite<br/><span>${highscore}</span><br/>Highscore`
+          playNewTrack('RockTheBoat')
         }
       } else if (result === 'lost'){
         endMessage.innerHTML = 'Lights on!'
@@ -455,8 +431,10 @@ function init() {
         if (gotHighscore()){
           localStorage.setItem('highscore', score)
           message2.innerHTML = `Highscore!! Looks like the dancing queens all stayed home tonight cus you still came out on top...<br/><span>${highscore}</span><br/>Highscore`
+          playNewTrack('DancingQueen')
         } else {
           message2.innerHTML = `You gotta keep working on those moves to compete with the elite...<br/><span>${highscore}</span><br/>Highscore`
+          playNewTrack('CarWash')
         }
       }
       startButton.innerText = 'PLAY AGAIN'
@@ -472,13 +450,41 @@ function init() {
     }
   }
 
+  function pickNewTrack(){
+    const randIndex = Math.floor(Math.random() * tracks.length)
+    track = tracks[randIndex]
+    console.log(track)
+    tracks = tracks.filter(item => item !== track)
+    audio.src = `./audio/${track}.mp3`
+    // playNewTrack()
+  }
+  console.log(track)
+  function musicSwitch(){
+    if (audio.paused){
+      // console.log(track)
+      // audio.src = `./audio/${track}.mp3`
+      audio.play()
+    } else {
+      audio.pause()
+    }
+  }
+
+  function playNewTrack(track){
+    if (!audio.paused){
+      audio.src = `./audio/${track}.mp3`
+      audio.play()
+    }
+  }
+  endGame('won')
   document.addEventListener('keydown', (event) => {
     pacman.testNewDirection(event, pacman)
   })
   
   document.addEventListener('keydown', startGame)
   startButton.addEventListener('click', startGame)
-
+  speakers.forEach(speaker => {
+    speaker.addEventListener('click', musicSwitch)
+  })
 }
 
 window.addEventListener('DOMContentLoaded', init)

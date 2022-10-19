@@ -18,6 +18,7 @@ h1{
   font-size: 60px;
   color: gold;
   margin: 20px 0;
+  text-align: left;
 }
 body{
   margin: 0;
@@ -38,27 +39,22 @@ body{
   margin: 30px 20px;
 }
 
-#main{
+main{
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
+  width: 600px;
 }
-
-
-
 #page-wrapper{
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
+
 
 }
-
-
 header{
   display: flex;
-  justify-content: start;
+  justify-content: center;
   align-items: flex-end;
   width: 100%;
 }
@@ -79,14 +75,19 @@ header{
 p{
   margin: 5px 0 10px 0;
 }
+#lives{
+  padding-right: 10px;
+}
 
 .grid-wrapper{
-  max-width: 600px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .grid-wrapper-end{
-  display: flex;
-  flex-direction: column;
+
   justify-content: space-evenly;
   align-items: center;
 }
@@ -112,7 +113,7 @@ p{
   width: 600px;
   background-color: black;
   border-radius: 10px;
-
+  margin: 0 auto;
 }
 
 #grid div{
@@ -156,6 +157,9 @@ p{
   /* transition: ease-in-out 2s; */
   /* filter: hue-rotate(90deg); */
   filter: grayscale() brightness(150%);
+}
+.speaker{
+  display: none;
 }
 
 button{
@@ -205,30 +209,59 @@ button:hover{
 
 
 @media (min-width: 600px){
-  #smallball{
-    display: none;
-  }
-  #rightball, #leftball{
-    display: inline;
-  }
+  
   body{
     height: 100vh;
     width: 100vw;
   }
-  #smallball{
-    width: 100px;
-  }
+  
   header{
     justify-content: center;
   }
   #screen{
-    width: 100vw;
+    width: calc(100vw - 40px);
   }
   #page-wrapper{
     flex-direction: row;
     justify-content: space-evenly;
     align-items: flex-start;
   }
-
+  .img-wrapper{
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .img-wrapper.left {
+    align-items: flex-end;
+  }
+  .img-wrapper.right {
+    align-items: flex-start;
+  }
+  .speaker{
+    display: inline;
+    width: 100px;
+    margin: 50px;
+    transition: ease-in-out;
+  }
+  .speaker.right{
+    transform: rotateY(180deg);
+  }
+  .speaker:hover{
+    width: 120px;
+    transition: ease-in-out;
+  }
 
 } 
+@media (min-width: 976px){
+  #smallball{
+    display: none;
+    width: 100px;
+  }
+  #rightball, #leftball{
+    display: inline;
+  }
+  .speaker.right{
+
+    margin-top: 20px;
+  }
