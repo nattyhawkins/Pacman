@@ -41,7 +41,7 @@ function init() {
   const startButton = document.querySelector('button')
   const scoreDisplay = document.getElementById('score')
   const livesDisplay = document.getElementById('lives')
-
+  const discoBalls = document.querySelectorAll('discoball')
   let tracks = ['DiscoInferno', 'Funkytown', 'LeFreak', 'StayinAlive', 'MidasTouch', 'NightFever']
   let track
 
@@ -59,6 +59,7 @@ function init() {
   let active = false
   let highscore
   let pacmanTimer
+  let animationTimer
   let tileTimer
   let superTimer
   let noDots
@@ -71,9 +72,34 @@ function init() {
       this.srcx = srcx
       this.srcy = srcy
       this.currentDirection = currentDirection
-      this.newDirection = currentDirection
-      this.nextPosition = nextPosition
+      // this.newDirection = currentDirection
+      // this.nextPosition = nextPosition
     }
+    // animatePacman(){
+    //   clearInterval(animationTimer)
+    //   animationTimer = setInterval(() =>{
+    //     // this.frameCheck(33)
+    //     if (this.currentDirection === 'right'){
+    //       this.frameCheck(0)
+    //     } else if (this.currentDirection === 'down'){
+    //       this.frameCheck(16.5)
+    //     } else if (this.currentDirection === 'left'){
+    //       this.frameCheck(33)
+    //     } else if (this.currentDirection === 'up'){
+    //       this.frameCheck(49.5)
+    //     }
+    //     cells[this.currentPosition].style.backgroundPosition = `${this.srcx}% ${this.srcy}%`
+    //     cells[this.nextPosition].style.backgroundPosition = `${this.srcx}% ${this.srcy}%`
+    //   },80)
+    // }
+    // frameCheck(yPosition){
+    //   const frameSize = 5.5
+    //   if (this.srcy < ((yPosition) + (3 * frameSize))){
+    //     this.srcy += frameSize
+    //   } else {
+    //     this.srcy = yPosition + frameSize
+    //   }
+    // }
     resetPacman(){
       cells[this.currentPosition].classList.remove(this.cssClass)
       this.currentPosition = this.startingPosition
@@ -92,12 +118,18 @@ function init() {
       if (noDots){
         endGame('won')
       }
-      console.log('clearing interval')
-      clearInterval(pacmanTimer)
     }
     addSprite(position){
       cells[position].classList.add(this.cssClass)
-      cells[position].style.backgroundPosition = `${this.srcx} ${this.srcy}`
+      if (this.currentDirection === 'right'){
+        cells[position].style.backgroundPosition = `${this.srcx}% ${this.srcy.right}%`
+      } else if (this.currentDirection === 'left'){
+        cells[position].style.backgroundPosition = `${this.srcx}% ${this.srcy.left}%`
+      } else if (this.currentDirection === 'up'){
+        cells[position].style.backgroundPosition = `${this.srcx}% ${this.srcy.up}%`
+      } else if (this.currentDirection === 'down'){
+        cells[position].style.backgroundPosition = `${this.srcx}% ${this.srcy.down}%`
+      }
     }
   
     testNewDirection(event, player){
@@ -118,6 +150,7 @@ function init() {
       this.nextPosition = getNextPosition(player, player.newDirection)
       if (!cells[this.nextPosition].classList.contains('border') && !cells[this.nextPosition].classList.contains('ghost')){
         this.currentDirection = this.newDirection
+        // this.srcy = 
       } else {
         clearInterval(this.nextTurn)
         this.nextTurn = setInterval(() => {
@@ -183,7 +216,7 @@ function init() {
   }  
 
   class Ghost {
-    constructor(cssClass, startingPosition, nextPosition, srcx, srcy, currentDirection, delay, exitSequence){
+    constructor(cssClass, startingPosition, nextPosition, srcx, srcy, currentDirection, delay, exitSequence, behaviour, speed){
       this.cssClass = cssClass
       this.startingPosition = startingPosition
       this.nextPosition = nextPosition
@@ -193,6 +226,8 @@ function init() {
       this.currentDirection = currentDirection
       this.delay = delay
       this.exitSequence = exitSequence
+      this.behaviour = behaviour
+      this.speed = speed
     
     }
     addSprite(position){
@@ -213,11 +248,19 @@ function init() {
           handleMovement(ghost, ghost.exitSequence[i])
           i++
         } else {
-          this.moveRandom(ghost)
+          if (state === 'normal'){
+            if (this.behaviour === 'moveRandom'){
+              this.moveRandom(ghost)
+            } else if (this.behaviour === 'chase'){
+              this.chase(ghost)
+            }
+          } else if (state === 'super'){
+            this.flee(ghost)
+          }
+          
         }
-      }, 200)
+      }, this.speed)
       ghostTimers.push(this.timer)
-      console.log(ghostTimers)
     }
     moveRandom(ghost){
       this.checkCollision(state)
@@ -230,18 +273,43 @@ function init() {
     chase(ghost){
       this.checkCollision(state)
       ///get a random direction if not got one
+      const directions = ['left', 'right', 'up', 'down']
       if (!this.currentDirection){
         this.currentDirection = directions[Math.floor(Math.random() * directions.length)]
       }
       //get next position
       this.nextPosition = getNextPosition(ghost, ghost.currentDirection)
-      //check if closer to pacman on x axis
+      //get coords pacman and ghost
       this.currentCoords = spriteCoordinates(ghost.currentPosition)
       this.nextCoords = spriteCoordinates(ghost.nextPosition)
       pacman.currentCoords = spriteCoordinates(pacman.currentPosition)
-
-      if (Math.abs(pacman.currentCoords[0] - this.nextCoords[0]) < Math.abs(pacman.currentCoords[0] - this.currentCoords[0]) || Math.abs(pacman.currentCoords[1] - this.nextCoords[1]) < Math.abs(pacman.currentCoords[1] - this.currentCoords[1]))
-
+      //if new position closer, move
+      if (Math.abs(pacman.currentCoords[0] - this.nextCoords[0]) < Math.abs(pacman.currentCoords[0] - this.currentCoords[0]) || Math.abs(pacman.currentCoords[1] - this.nextCoords[1]) < Math.abs(pacman.currentCoords[1] - this.currentCoords[1])){
+        handleMovement(ghost, ghost.currentDirection)
+      } else {
+        this.currentDirection = false
+        // this.chase(ghost)
+      }
+    }
+    flee(ghost){
+      this.checkCollision(state)
+      const directions = ['left', 'right', 'up', 'down']
+      if (!this.currentDirection){
+        this.currentDirection = directions[Math.floor(Math.random() * directions.length)]
+      }
+      //get next position
+      this.nextPosition = getNextPosition(ghost, ghost.currentDirection)
+      //get coords pacman and ghost
+      this.currentCoords = spriteCoordinates(ghost.currentPosition)
+      this.nextCoords = spriteCoordinates(ghost.nextPosition)
+      pacman.currentCoords = spriteCoordinates(pacman.currentPosition)
+      //if new position closer, move
+      if (Math.abs(pacman.currentCoords[0] - this.nextCoords[0]) > Math.abs(pacman.currentCoords[0] - this.currentCoords[0]) || Math.abs(pacman.currentCoords[1] - this.nextCoords[1]) < Math.abs(pacman.currentCoords[1] - this.currentCoords[1])){
+        handleMovement(ghost, ghost.currentDirection)
+      } else {
+        this.currentDirection = false
+        // this.chase(ghost)
+      }
     }
     checkCollision(state){
       collision = Math.abs(this.currentPosition - pacman.currentPosition) === 1 || Math.abs(this.currentPosition - pacman.currentPosition) === width
@@ -281,7 +349,7 @@ function init() {
   function spriteCoordinates(position){
     const x = position % width
     const y = Math.floor(position / width)
-    resturn [x,y]
+    return [x,y]
   }
 
   function updateDisplay(){
@@ -307,6 +375,9 @@ function init() {
     clearInterval(tileTimer)
     tileTimer = setInterval(() => {
       addTileColours('lime', 'cyan', 'violet', 'aquamarine')
+      discoBalls.forEach(ball => {
+        ball.classList.toggle('flash')
+      })
     }, 500)
     clearInterval(superTimer)
     superTimer = setTimeout(() => {
@@ -327,12 +398,12 @@ function init() {
     }, 10000)
   }
 
-  const pacman = new Player('pacman', 450, 451,'94.4%', '11.1%', 'right')
+  const pacman = new Player('pacman', 450, 451, 94.4, { 'right': 5.5, 'down': 22, 'left': 38.5, 'up': 55 }, 'right')
   const ghosts = []
-  const ghost1 = new Ghost('ghost', 463, 464, '71.9%', '0.5%', 'up', 4000, ['right','up'])
-  const ghost2 = new Ghost('ghost', 464, 434, '77.5%', '0.5%', 'up', 2000, ['up'])
-  const ghost3 = new Ghost('ghost', 465, 435, '83.1%', '0.5%', 'up', 0, ['up'])
-  const ghost4 = new Ghost('ghost', 466, 465, '88.7%', '0.5%', 'up', 6000, ['left', 'up'])
+  const ghost1 = new Ghost('ghost', 463, 464, '71.9%', '0.5%', 'left', 4000, ['right','up', 'up', 'up', 'up'], 'chase', 190)
+  const ghost2 = new Ghost('ghost', 464, 434, '77.5%', '0.5%', 'up', 2000, ['up'], 'moveRandom', 200)
+  const ghost3 = new Ghost('ghost', 465, 435, '83.1%', '0.5%', 'left', 0, ['up', 'up', 'up', 'up'], 'chase', 200)
+  const ghost4 = new Ghost('ghost', 466, 465, '88.7%', '0.5%', 'up', 6000, ['left', 'up'], 'moveRandom', 210)
   ghosts.push(ghost1, ghost2, ghost3, ghost4)
 
 
@@ -392,7 +463,7 @@ function init() {
     cells = []
     createGrid()
     scoreBoard.style.display = 'flex'
-    startButton.innerText = 'GO'
+    startButton.innerText = 'SPACE TO START'
     lives = 3
     score = 0
     updateDisplay()
@@ -400,7 +471,6 @@ function init() {
 
   function startGame(e){
     if (!active && !collision){
-      console.log(active)
       if (gridWrapper.classList.contains('grid-wrapper-end')){
         resetGame()
       }
@@ -409,11 +479,11 @@ function init() {
           clearInterval(timer)
         })
         ghostTimers = []
-        console.log(ghostTimers)
         active = true
         
         pacman.addSprite(pacman.startingPosition)
         pacman.moveCurrentDirection(pacman)
+        // pacman.animatePacman()
         ghosts.forEach((ghost) => {
           setTimeout(() => {
             ghost.exitPen(ghost)
@@ -425,6 +495,7 @@ function init() {
  
   function endGame(result) {
     setTimeout(() => {
+      clearInterval(pacmanTimer)
       ghosts.forEach(ghost => {
         ghost.resetGhost()
       })
@@ -482,7 +553,6 @@ function init() {
   function pickNewTrack(){
     const randIndex = Math.floor(Math.random() * tracks.length)
     track = tracks[randIndex]
-    console.log(track)
     tracks = tracks.filter(item => item !== track)
     mainAudio.src = `./audio/${track}.mp3`
   }

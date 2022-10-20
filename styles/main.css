@@ -145,7 +145,7 @@ p{
   display: none;
   min-width: 200px;
   width: 40vh;
-  margin: -200px 50px 0 50px;
+  margin: -150px 50px 0 50px;
   /* transition: ease-in-out 2s; */
   filter: brightness(150%);
 }
@@ -160,6 +160,9 @@ p{
 }
 .speaker{
   display: none;
+}
+#leftball:hover, #rightball:hover, .flash{
+  transform: rotateY(180deg);
 }
 
 button{
@@ -182,7 +185,7 @@ button:hover{
   background-image: url('../assets/basic-sprites.png');
   background-repeat: no-repeat;
   background-size: 400px;
-  background-position: calc(100% / 19 * 18) calc(100% / 18 * 2);
+  background-position: calc(100% / 19 * 18) 0%;
 }
 
 .ghost{
