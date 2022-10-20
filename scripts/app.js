@@ -35,7 +35,8 @@ function init() {
   const grid = document.getElementById('grid')
   const scoreBoard = document.querySelector('#scoreBoard')
   const gridWrapper = document.querySelector('.grid-wrapper')
-  const audio = document.querySelector('audio')
+  const mainAudio = document.querySelector('#mainAudio')
+  const superAudio = document.querySelector('#superAudio')
   const speakers = document.querySelectorAll('.speaker')
   const startButton = document.querySelector('button')
   const scoreDisplay = document.getElementById('score')
@@ -43,7 +44,6 @@ function init() {
 
   let tracks = ['DiscoInferno', 'Funkytown', 'LeFreak', 'StayinAlive', 'MidasTouch', 'NightFever']
   let track
- 
 
   let borderCells
   let collision
@@ -54,11 +54,14 @@ function init() {
   let cells = []
   let score = 0
   let state = 'normal'
-  let lives = 3
+  let lives = 1
   let ghostTimers = []
   let active = false
   let highscore
   let pacmanTimer
+  let tileTimer
+  let superTimer
+  let noDots
 
   class Player {
     constructor(cssClass, startingPosition, nextPosition, srcx, srcy, currentDirection) {
@@ -85,10 +88,12 @@ function init() {
         superState()
       }
       updateDisplay()
-      const noDots = !cells.some(cell => cell.hasChildNodes())
+      noDots = !cells.some(cell => cell.hasChildNodes())
       if (noDots){
         endGame('won')
       }
+      console.log('clearing interval')
+      clearInterval(pacmanTimer)
     }
     addSprite(position){
       cells[position].classList.add(this.cssClass)
@@ -142,9 +147,6 @@ function init() {
         //for any regular move, restricting ghost pen
         } else if (!(this.currentDirection === 'down' && (this.currentPosition === 344 || this.currentPosition === 345))) {
           handleMovement(player, this.currentDirection)
-          // if (!this.currentDirection){
-          //   this.currentDirection = this.newDirection
-          // }
         }
       }, 170) 
     }
@@ -225,6 +227,22 @@ function init() {
       }
       handleMovement(ghost, ghost.currentDirection)
     }
+    chase(ghost){
+      this.checkCollision(state)
+      ///get a random direction if not got one
+      if (!this.currentDirection){
+        this.currentDirection = directions[Math.floor(Math.random() * directions.length)]
+      }
+      //get next position
+      this.nextPosition = getNextPosition(ghost, ghost.currentDirection)
+      //check if closer to pacman on x axis
+      this.currentCoords = spriteCoordinates(ghost.currentPosition)
+      this.nextCoords = spriteCoordinates(ghost.nextPosition)
+      pacman.currentCoords = spriteCoordinates(pacman.currentPosition)
+
+      if (Math.abs(pacman.currentCoords[0] - this.nextCoords[0]) < Math.abs(pacman.currentCoords[0] - this.currentCoords[0]) || Math.abs(pacman.currentCoords[1] - this.nextCoords[1]) < Math.abs(pacman.currentCoords[1] - this.currentCoords[1]))
+
+    }
     checkCollision(state){
       collision = Math.abs(this.currentPosition - pacman.currentPosition) === 1 || Math.abs(this.currentPosition - pacman.currentPosition) === width
       if (collision){
@@ -238,7 +256,7 @@ function init() {
             setTimeout(() => {
               lives--
               updateDisplay()
-              pickNewTrack()
+              // pickNewTrack() add rewind sound ??
               ghosts.forEach(ghost => {
                 ghost.resetGhost()
               })
@@ -256,23 +274,46 @@ function init() {
           this.exitPen(ghost)
         }
       }
-    } 
+      
+    }
   }
+
+  function spriteCoordinates(position){
+    const x = position % width
+    const y = Math.floor(position / width)
+    resturn [x,y]
+  }
+
   function updateDisplay(){
     livesDisplay.innerText = '💿 '.repeat(lives)
     scoreDisplay.innerText = score
   }
 
+
+  function playSuperAudio(){
+    if (!mainAudio.paused){
+      mainAudio.pause()
+      superAudio.play()
+    } 
+  }
+
   function superState(){
     state = 'super'
+    playSuperAudio()
     ghosts.forEach(ghost => {
       ghost.srcx = '0px'
       ghost.srcy = '61%'
     })
-    const tileTimer = setInterval(() => {
+    clearInterval(tileTimer)
+    tileTimer = setInterval(() => {
       addTileColours('lime', 'cyan', 'violet', 'aquamarine')
     }, 500)
-    setTimeout(() => {
+    clearInterval(superTimer)
+    superTimer = setTimeout(() => {
+      if (!superAudio.paused){
+        mainAudio.play()
+      }
+      superAudio.pause()
       clearInterval(tileTimer)
       addTileColours('magenta', 'blue', 'lightgreen', 'violet')
       state = 'normal'
@@ -283,7 +324,6 @@ function init() {
       ghost2.srcx = '77.5%'
       ghost3.srcx = '83.1%'
       ghost4.srcx = '88.7%'
-
     }, 10000)
   }
 
@@ -294,7 +334,6 @@ function init() {
   const ghost3 = new Ghost('ghost', 465, 435, '83.1%', '0.5%', 'up', 0, ['up'])
   const ghost4 = new Ghost('ghost', 466, 465, '88.7%', '0.5%', 'up', 6000, ['left', 'up'])
   ghosts.push(ghost1, ghost2, ghost3, ghost4)
-  // ghosts.push(ghost3)
 
 
   function addTileColours(one, two, three, four){
@@ -319,11 +358,9 @@ function init() {
           // addTileColours('lightgreen', 'cyan', 'lime', 'white')
         } if (number === 1 || number === 3){
           cell.classList.add('track')
-          // if (i !== pacman.startingPosition){
           const dot = document.createElement('div')
           cell.appendChild(dot) 
           dot.classList.add('dot')
-          // }
         } else if (number === 3){
           cell.classList.add('gate')
         } else if (number === 8){
@@ -345,15 +382,6 @@ function init() {
 
   createGrid()
   pickNewTrack()
-  console.log(tracks)
-  // function stopGhostTimer(timer){
-  //   if (timer.length >= 4){
-  //     timer.forEach(one => {
-  //       clearInterval(one)
-  //       timer = []
-  //     })
-  //   }
-  // }
 
   function resetGame(){
     gridWrapper.classList.remove('grid-wrapper-end')
@@ -420,10 +448,10 @@ function init() {
         if (gotHighscore()){
           localStorage.setItem('highscore', score)
           message2.innerHTML = `New Highscore! There ain't no stopping you now - you've been been crowned le freak of the week! Conratulations!<br/><span>${highscore}</span><br/>Highscore`
-          playNewTrack('AintNoStoppingUsNow')
+          playNewTrack('AintNoStoppingUsNow', '00:01:43')
         } else {
           message2.innerHTML = `So, you rocked the boat... but you're gonna have to keep working on those moves to compete with the elite<br/><span>${highscore}</span><br/>Highscore`
-          playNewTrack('RockTheBoat')
+          playNewTrack('RockTheBoat', '00:00:18')
         }
       } else if (result === 'lost'){
         endMessage.innerHTML = 'Lights on!'
@@ -431,14 +459,14 @@ function init() {
         if (gotHighscore()){
           localStorage.setItem('highscore', score)
           message2.innerHTML = `Highscore!! Looks like the dancing queens all stayed home tonight cus you still came out on top...<br/><span>${highscore}</span><br/>Highscore`
-          playNewTrack('DancingQueen')
+          playNewTrack('DancingQueen', '00:00:22')
         } else {
           message2.innerHTML = `You gotta keep working on those moves to compete with the elite...<br/><span>${highscore}</span><br/>Highscore`
-          playNewTrack('CarWash')
+          playNewTrack('CarWash', '00:01:03')
         }
       }
       startButton.innerText = 'PLAY AGAIN'
-    },1000)    
+    },500)    
   }
 
   function gotHighscore(){
@@ -448,6 +476,7 @@ function init() {
     } else {
       return false
     }
+
   }
 
   function pickNewTrack(){
@@ -455,27 +484,26 @@ function init() {
     track = tracks[randIndex]
     console.log(track)
     tracks = tracks.filter(item => item !== track)
-    audio.src = `./audio/${track}.mp3`
-    // playNewTrack()
+    mainAudio.src = `./audio/${track}.mp3`
   }
-  console.log(track)
-  function musicSwitch(){
+
+  function musicSwitch(audio){
     if (audio.paused){
-      // console.log(track)
-      // audio.src = `./audio/${track}.mp3`
       audio.play()
     } else {
       audio.pause()
     }
   }
 
-  function playNewTrack(track){
-    if (!audio.paused){
-      audio.src = `./audio/${track}.mp3`
-      audio.play()
+  function playNewTrack(track, timeStamp){
+    superAudio.pause()
+    if (!mainAudio.paused){
+      mainAudio.src = `./audio/${track}.mp3#t=${timeStamp}`
+      mainAudio.play()
+    } else {
+      mainAudio.src = `./audio/${track}.mp3#t=${timeStamp}`
     }
   }
-  endGame('won')
   document.addEventListener('keydown', (event) => {
     pacman.testNewDirection(event, pacman)
   })
@@ -483,7 +511,13 @@ function init() {
   document.addEventListener('keydown', startGame)
   startButton.addEventListener('click', startGame)
   speakers.forEach(speaker => {
-    speaker.addEventListener('click', musicSwitch)
+    speaker.addEventListener('click', () => {
+      if (state === 'normal'){
+        musicSwitch(mainAudio)
+      } else if (state === 'super'){
+        musicSwitch(superAudio)
+      }
+    })
   })
 }
 
