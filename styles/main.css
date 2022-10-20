@@ -20,7 +20,9 @@ h1{
   color: gold;
   margin: 20px 0;
   text-align: left;
+  transition: ease-in-out 2s;
 }
+
 h2{
   font-size: 18px;
   margin: 0;
@@ -30,7 +32,7 @@ h2{
 body{
   margin: 0;
   background-color: black;
-  /* background-image: url('https://static.vecteezy.com/system/resources/thumbnails/002/018/568/original/spot-lighting-with-smoke-effect-on-a-black-background-free-video.jpg'); */
+  background-image: url('https://static.vecteezy.com/system/resources/thumbnails/002/018/568/original/spot-lighting-with-smoke-effect-on-a-black-background-free-video.jpg');
   color: #FFFDD0;
   font-family: Georgia, 'Times New Roman', Times, serif;
   text-align: center;
@@ -70,7 +72,6 @@ header{
   display: inline-block;
   width: 150px;
   margin: -70px 50px 0 50px;
-  transition: ease-in-out 2s;
 }
 #scoreBoard{
   display: flex;
@@ -139,7 +140,7 @@ p{
 }
 
 .border{
-  border: 0.5px solid black;
+  border: 1px solid black;
   border-radius: 3px;
 }
 
@@ -163,7 +164,7 @@ p{
 .speaker{
   display: none;
 }
-#leftball:hover, #rightball:hover{
+.discoball:hover, h1:hover{
   transform: rotateY(180deg);
 }
 .flash{
@@ -247,7 +248,7 @@ button:hover{
     transform: rotateY(180deg);
   }
   .speaker:hover{
-    width: 120px;
+    width: 140px;
     transition: ease-in-out;
     cursor: pointer;
   }
