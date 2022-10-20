@@ -43,7 +43,7 @@ function init() {
   const scoreDisplay = document.getElementById('score')
   const livesDisplay = document.getElementById('lives')
   const discoBalls = document.querySelectorAll('.discoball')
-  let tracks = ['DiscoInferno', 'Funkytown', 'LeFreak', 'StayinAlive', 'MidasTouch', 'NightFever']
+  let tracks = ['DiscoInferno', 'Funkytown', 'LeFreak', 'StayinAlive', 'MidasTouch']
   let track
 
   let borderCells
@@ -60,7 +60,6 @@ function init() {
   let active = false
   let highscore
   let pacmanTimer
-  let animationTimer
   let tileTimer
   let superTimer
   let noDots
@@ -97,8 +96,8 @@ function init() {
       }
     }
     animate(baseFrame){
-      clearInterval(animationTimer)
-      animationTimer = setInterval(() => {
+      clearInterval(this.animationTimer)
+      this.animationTimer = setInterval(() => {
         console.log(this.currentDirection)
         const frameSize = 5.5
         
@@ -154,7 +153,6 @@ function init() {
       this.nextPosition = getNextPosition(player, player.newDirection)
       if (!cells[this.nextPosition].classList.contains('border') && !cells[this.nextPosition].classList.contains('ghost')){
         this.currentDirection = this.newDirection
-        // this.srcy = 
       } else {
         clearInterval(this.nextTurn)
         this.nextTurn = setInterval(() => {
@@ -235,8 +233,48 @@ function init() {
     
     }
     addSprite(position){
+      let firstFrame
+      let ghostState
+      if (state === 'normal'){
+        ghostState = ghostY
+      } else if (state === 'super'){
+        ghostState = ghostSuperY
+      }
+      if (this.currentDirection === 'right'){
+        this.srcy = ghostState.right
+        firstFrame = ghostState.right
+      } else if (this.currentDirection === 'left'){
+        this.srcy = ghostState.left
+        firstFrame = ghostState.left
+      } else if (this.currentDirection === 'up'){
+        this.srcy = ghostState.up
+        firstFrame = ghostState.up
+      } else if (this.currentDirection === 'down'){
+        this.srcy = ghostState.down
+        firstFrame = ghostState.down
+      }
+      cells[position].style.backgroundPosition = `${this.srcx}% ${this.srcy}%`
       cells[position].classList.add(this.cssClass)
-      cells[position].style.backgroundPosition = `${this.srcx} ${this.srcy}`
+      this.animate(firstFrame)
+    }
+    animate(baseFrame){
+      let speed
+      if (state === 'normal'){
+        speed = 170
+      } else if (state === 'super'){
+        speed = 1000
+      }
+      clearInterval(this.animationTimer)
+      this.animationTimer = setInterval(() => {
+        console.log(this.currentDirection)
+        const frameSize = 5.2
+        if (this.srcy < (baseFrame + frameSize)){
+          this.srcy += frameSize
+        } else {
+          this.srcy = baseFrame
+        }
+        cells[this.currentPosition].style.backgroundPosition = `${this.srcx}% ${this.srcy}%`
+      }, speed)
     }
     resetGhost(){
       cells[this.currentPosition].classList.remove(this.cssClass)
@@ -373,16 +411,16 @@ function init() {
     state = 'super'
     playSuperAudio()
     ghosts.forEach(ghost => {
-      ghost.srcx = '0px'
-      ghost.srcy = '61%'
+      ghost.srcx = 0.5
+      ghost.srcy = 61
     })
     clearInterval(tileTimer)
     tileTimer = setInterval(() => {
-      addTileColours('lime', 'cyan', 'violet', 'aquamarine')
+      addTileColours('silver', 'gold', 'aquamarine', 'silver')
       discoBalls.forEach(ball => {
         ball.classList.toggle('flash')
       })
-    }, 500)
+    }, 900)
     clearInterval(superTimer)
     superTimer = setTimeout(() => {
       if (!superAudio.paused){
@@ -393,22 +431,25 @@ function init() {
       addTileColours('magenta', 'blue', 'lightgreen', 'violet')
       state = 'normal'
       ghosts.forEach(ghost => {
-        ghost.srcy = '0.5%'
+        ghost.srcy = 0.5
       })
-      ghost1.srcx = '71.9%'
-      ghost2.srcx = '77.5%'
-      ghost3.srcx = '83.1%'
-      ghost4.srcx = '88.7%'
+      ghost1.srcx = 71.9
+      ghost2.srcx = 77.5
+      ghost3.srcx = 83
+      ghost4.srcx = 88.3
     }, 10000)
   }
 
   const pacmanY = { 'right': 5.5, 'down': 22, 'left': 38.5, 'up': 55 }
+  const ghostY = { 'right': 0.5, 'down': 11.5, 'left': 22.5, 'up': 33.5 }
+  const ghostSuperY = { 'right': 61.5, 'down': 72.5, 'left': 83.5, 'up': 94.5 }
+
   const pacman = new Player('pacman', 450, 451, 94.4, 0, 'right')
   const ghosts = []
-  const ghost1 = new Ghost('ghost', 463, 464, '71.9%', '0.5%', 'left', 4000, ['right','up', 'up', 'up', 'up'], 'chase', 190)
-  const ghost2 = new Ghost('ghost', 464, 434, '77.5%', '0.5%', 'up', 2000, ['up'], 'moveRandom', 200)
-  const ghost3 = new Ghost('ghost', 465, 435, '83.1%', '0.5%', 'left', 0, ['up', 'up', 'up', 'up'], 'chase', 200)
-  const ghost4 = new Ghost('ghost', 466, 465, '88.7%', '0.5%', 'up', 6000, ['left', 'up'], 'moveRandom', 210)
+  const ghost1 = new Ghost('ghost', 463, 464, 71.9, ghostY.right, 'right', 4000, ['right','up', 'up', 'up', 'up'], 'chase', 190)
+  const ghost2 = new Ghost('ghost', 464, 434, 77.5, ghostY.up, 'up', 2000, ['up'], 'moveRandom', 200)
+  const ghost3 = new Ghost('ghost', 465, 435, 83, ghostY.up, 'left', 0, ['up', 'up', 'up', 'up'], 'chase', 200)
+  const ghost4 = new Ghost('ghost', 466, 465, 88.3, ghostY.left, 'up', 6000, ['left', 'up'], 'moveRandom', 210)
   ghosts.push(ghost1, ghost2, ghost3, ghost4)
 
 
@@ -431,7 +472,6 @@ function init() {
           cell.classList.add('border')
           borderCells = document.querySelectorAll('.border')
           addTileColours('magenta', 'blue', 'lightgreen', 'violet')
-          // addTileColours('lightgreen', 'cyan', 'lime', 'white')
         } if (number === 1 || number === 3){
           cell.classList.add('track')
           const dot = document.createElement('div')

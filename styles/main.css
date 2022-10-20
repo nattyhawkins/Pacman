@@ -1,5 +1,6 @@
 :root{
   --width: 30;
+  --grid-size: 650px;
 }
 
 *{
@@ -42,14 +43,14 @@ body{
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin: 30px 20px;
+  margin: 0 20px;
 }
 
 main{
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 600px;
+  width: var(--grid-size);
 }
 #page-wrapper{
   display: flex;
@@ -81,9 +82,6 @@ header{
 p{
   margin: 5px 0 10px 0;
 }
-#lives{
-  padding-right: 10px;
-}
 
 .grid-wrapper{
   display: flex;
@@ -110,18 +108,16 @@ p{
   color: violet;
   margin-bottom: -10px;
 }
-
-
 #grid{
   display: flex;
   flex-wrap: wrap;
-  height: 600px;
-  width: 600px;
+  height: var(--grid-size);
+  width: var(--grid-size);
   background-color: black;
   border-radius: 10px;
   margin: 0 auto;
 }
-
+/* GRID BORDERS HERE */
 #grid div{
   width: calc(100% / var(--width));
   height: calc(100% / var(--width));
@@ -200,14 +196,14 @@ button:hover{
 .pacman{
   background-image: url('../assets/basic-sprites.png');
   background-repeat: no-repeat;
-  background-size: 400px;
-  background-position: 94.4% 0%;
+  background-size: 450px;
+  /* background-position: 94.4% 0%; */
 }
 
 .ghost{
   background-image: url('../assets/neon-sprites.png');
   background-repeat: no-repeat;
-  background-size: 400px;
+  background-size: 480px;
 }
 
 
