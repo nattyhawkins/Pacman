@@ -12,7 +12,7 @@ function init() {
     [0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0],
     [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
     [0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0],
-    [0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 8, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
     [3, 1, 1, 1, 1, 8, 1, 1, 1, 1, 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3],
@@ -33,6 +33,7 @@ function init() {
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   ]
   const grid = document.getElementById('grid')
+  const h2 = document.querySelector('h2')
   const scoreBoard = document.querySelector('#scoreBoard')
   const gridWrapper = document.querySelector('.grid-wrapper')
   const mainAudio = document.querySelector('#mainAudio')
@@ -41,7 +42,7 @@ function init() {
   const startButton = document.querySelector('button')
   const scoreDisplay = document.getElementById('score')
   const livesDisplay = document.getElementById('lives')
-  const discoBalls = document.querySelectorAll('discoball')
+  const discoBalls = document.querySelectorAll('.discoball')
   let tracks = ['DiscoInferno', 'Funkytown', 'LeFreak', 'StayinAlive', 'MidasTouch', 'NightFever']
   let track
 
@@ -54,7 +55,7 @@ function init() {
   let cells = []
   let score = 0
   let state = 'normal'
-  let lives = 1
+  let lives = 3
   let ghostTimers = []
   let active = false
   let highscore
@@ -75,31 +76,7 @@ function init() {
       // this.newDirection = currentDirection
       // this.nextPosition = nextPosition
     }
-    // animatePacman(){
-    //   clearInterval(animationTimer)
-    //   animationTimer = setInterval(() =>{
-    //     // this.frameCheck(33)
-    //     if (this.currentDirection === 'right'){
-    //       this.frameCheck(0)
-    //     } else if (this.currentDirection === 'down'){
-    //       this.frameCheck(16.5)
-    //     } else if (this.currentDirection === 'left'){
-    //       this.frameCheck(33)
-    //     } else if (this.currentDirection === 'up'){
-    //       this.frameCheck(49.5)
-    //     }
-    //     cells[this.currentPosition].style.backgroundPosition = `${this.srcx}% ${this.srcy}%`
-    //     cells[this.nextPosition].style.backgroundPosition = `${this.srcx}% ${this.srcy}%`
-    //   },80)
-    // }
-    // frameCheck(yPosition){
-    //   const frameSize = 5.5
-    //   if (this.srcy < ((yPosition) + (3 * frameSize))){
-    //     this.srcy += frameSize
-    //   } else {
-    //     this.srcy = yPosition + frameSize
-    //   }
-    // }
+
     resetPacman(){
       cells[this.currentPosition].classList.remove(this.cssClass)
       this.currentPosition = this.startingPosition
@@ -119,17 +96,44 @@ function init() {
         endGame('won')
       }
     }
+    animate(baseFrame){
+      clearInterval(animationTimer)
+      animationTimer = setInterval(() => {
+        console.log(this.currentDirection)
+        const frameSize = 5.5
+        
+        if (this.srcy < (baseFrame + (2 * frameSize))){
+          this.srcy += frameSize
+        } else {
+          this.srcy = baseFrame
+        }
+        cells[this.currentPosition].style.backgroundPosition = `${this.srcx}% ${this.srcy}%`
+
+      }, 90)
+    }
     addSprite(position){
-      cells[position].classList.add(this.cssClass)
+      let firstFrame
       if (this.currentDirection === 'right'){
-        cells[position].style.backgroundPosition = `${this.srcx}% ${this.srcy.right}%`
+        this.srcy = pacmanY.right
+        firstFrame = pacmanY.right
+        // cells[position].style.backgroundPosition = `${this.srcx}% ${this.srcy.right}%`
       } else if (this.currentDirection === 'left'){
-        cells[position].style.backgroundPosition = `${this.srcx}% ${this.srcy.left}%`
+        this.srcy = pacmanY.left
+        firstFrame = pacmanY.left
+        // cells[position].style.backgroundPosition = `${this.srcx}% ${this.srcy.left}%`
       } else if (this.currentDirection === 'up'){
-        cells[position].style.backgroundPosition = `${this.srcx}% ${this.srcy.up}%`
+        this.srcy = pacmanY.up
+        firstFrame = pacmanY.up
+        // cells[position].style.backgroundPosition = `${this.srcx}% ${this.srcy.up}%`
       } else if (this.currentDirection === 'down'){
-        cells[position].style.backgroundPosition = `${this.srcx}% ${this.srcy.down}%`
+        // cells[position].style.backgroundPosition = `${this.srcx}% ${this.srcy.down}%`
+        this.srcy = pacmanY.down
+        firstFrame = pacmanY.down
       }
+      
+      cells[position].style.backgroundPosition = `${this.srcx}% ${this.srcy}%`
+      cells[position].classList.add(this.cssClass)
+      this.animate(firstFrame - 5.5)
     }
   
     testNewDirection(event, player){
@@ -398,7 +402,8 @@ function init() {
     }, 10000)
   }
 
-  const pacman = new Player('pacman', 450, 451, 94.4, { 'right': 5.5, 'down': 22, 'left': 38.5, 'up': 55 }, 'right')
+  const pacmanY = { 'right': 5.5, 'down': 22, 'left': 38.5, 'up': 55 }
+  const pacman = new Player('pacman', 450, 451, 94.4, 0, 'right')
   const ghosts = []
   const ghost1 = new Ghost('ghost', 463, 464, '71.9%', '0.5%', 'left', 4000, ['right','up', 'up', 'up', 'up'], 'chase', 190)
   const ghost2 = new Ghost('ghost', 464, 434, '77.5%', '0.5%', 'up', 2000, ['up'], 'moveRandom', 200)
@@ -455,6 +460,7 @@ function init() {
   pickNewTrack()
 
   function resetGame(){
+    clearInterval(tileTimer)
     gridWrapper.classList.remove('grid-wrapper-end')
     while (gridWrapper.lastChild.nodeName === 'P'){
       gridWrapper.removeChild(gridWrapper.lastChild)
@@ -502,6 +508,7 @@ function init() {
       pacman.resetPacman()
       collision = false
       grid.style.display = 'none'
+      h2.style.display = 'none'
       while (grid.lastChild){
         grid.removeChild(grid.lastChild)
       }
@@ -515,28 +522,34 @@ function init() {
       gridWrapper.appendChild(message2)
       if (result === 'won'){
         endMessage.innerHTML = 'Thats what we call Stayin\' Alive!'
-        finalScore.innerHTML = `You completed Disco Pacman and scored</br><span> ${score} </span></br>points`
+        finalScore.innerHTML = `You completed Disco Pacman and scored</br><span> ${score} </span></br><br/>points`
         if (gotHighscore()){
           localStorage.setItem('highscore', score)
-          message2.innerHTML = `New Highscore! There ain't no stopping you now - you've been been crowned le freak of the week! Conratulations!<br/><span>${highscore}</span><br/>Highscore`
+          message2.innerHTML = `New Highscore! There ain't no stopping you now - you've been been crowned le freak of the week! Conratulations!<br/><span>${highscore}</span><br/><br/>Highscore`
           playNewTrack('AintNoStoppingUsNow', '00:01:43')
         } else {
-          message2.innerHTML = `So, you rocked the boat... but you're gonna have to keep working on those moves to compete with the elite<br/><span>${highscore}</span><br/>Highscore`
+          message2.innerHTML = `So, you rocked the boat... but you're gonna have to keep working on those moves to compete with the elite<br/><span>${highscore}</span><br/><br/>Highscore`
           playNewTrack('RockTheBoat', '00:00:18')
         }
       } else if (result === 'lost'){
         endMessage.innerHTML = 'Lights on!'
-        finalScore.innerHTML = `Looks like you left <span id="funk"> The Funk </span> at home tonight! You got</br><span> ${score} </span></br>points`
+        finalScore.innerHTML = `Looks like you left <span id="funk"> The Funk </span> at home tonight! You got</br><span> ${score} </span></br><br/>points`
         if (gotHighscore()){
           localStorage.setItem('highscore', score)
-          message2.innerHTML = `Highscore!! Looks like the dancing queens all stayed home tonight cus you still came out on top...<br/><span>${highscore}</span><br/>Highscore`
+          message2.innerHTML = `Highscore!! Looks like the dancing queens all stayed home tonight cus you still came out on top...<br/><span>${highscore}</span><br/><br/>Highscore`
           playNewTrack('DancingQueen', '00:00:22')
         } else {
-          message2.innerHTML = `You gotta keep working on those moves to compete with the elite...<br/><span>${highscore}</span><br/>Highscore`
+          message2.innerHTML = `You gotta keep working on those moves to compete with the elite...<br/><span>${highscore}</span><br/><br/>Highscore`
           playNewTrack('CarWash', '00:01:03')
         }
       }
       startButton.innerText = 'PLAY AGAIN'
+      clearInterval(tileTimer)
+      tileTimer = setInterval(() => {
+        discoBalls.forEach(ball => {
+          ball.classList.toggle('flash')
+        })
+      }, 500)
     },500)    
   }
 

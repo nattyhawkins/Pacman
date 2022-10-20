@@ -20,11 +20,17 @@ h1{
   margin: 20px 0;
   text-align: left;
 }
+h2{
+  font-size: 18px;
+  margin: 0;
+  font-family: 'Orbitron', sans-serif;
+  display: block;
+}
 body{
   margin: 0;
   background-color: black;
   /* background-image: url('https://static.vecteezy.com/system/resources/thumbnails/002/018/568/original/spot-lighting-with-smoke-effect-on-a-black-background-free-video.jpg'); */
-  color: white;
+  color: #FFFDD0;
   font-family: Georgia, 'Times New Roman', Times, serif;
   text-align: center;
   width: 100vh;
@@ -80,28 +86,28 @@ p{
 }
 
 .grid-wrapper{
-
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 .grid-wrapper-end{
-
   justify-content: space-evenly;
   align-items: center;
 }
 
 .grid-wrapper-end p {
   margin: 35px 0;
+  color: #FFFDD0;
+
 }
 .grid-wrapper-end span:not(#funk){
   font-size: 70px;
-  color: gold;
+  color: lightgreen;
 }
 
 #funk{
-  color: magenta;
+  color: violet;
   margin-bottom: -10px;
 }
 
@@ -161,7 +167,10 @@ p{
 .speaker{
   display: none;
 }
-#leftball:hover, #rightball:hover, .flash{
+#leftball:hover, #rightball:hover{
+  transform: rotateY(180deg);
+}
+.flash{
   transform: rotateY(180deg);
 }
 
@@ -178,36 +187,27 @@ button{
 button:hover{
   background-color: black;
   color: gold;
-  
+  cursor: pointer;
 }
+.potion{
+  background-image: url('../assets/transparent-star-png-2.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 19px;
+}
+
 
 .pacman{
   background-image: url('../assets/basic-sprites.png');
   background-repeat: no-repeat;
   background-size: 400px;
-  background-position: calc(100% / 19 * 18) 0%;
+  background-position: 94.4% 0%;
 }
 
 .ghost{
   background-image: url('../assets/neon-sprites.png');
   background-repeat: no-repeat;
   background-size: 400px;
-}
-.potion{
-  /* 732x400 */
-  /* background-image: url('../assets/potion.png');
-  background-repeat: no-repeat;
-  background-size: 490px;
-  background-position: calc(89.5%) calc(95%);
- */
-  background-image: url('../assets/disco-potion.png');
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 14px;
-  /* transform: rotate(45deg);
-  position: relative;
-  overflow: hidden; */
-  /* background-position: calc(89.5%) calc(95%); */
 }
 
 
@@ -243,7 +243,7 @@ button:hover{
   }
   .speaker{
     display: inline;
-    width: 100px;
+    width: 120px;
     margin: 50px;
     transition: ease-in-out;
   }
@@ -253,6 +253,7 @@ button:hover{
   .speaker:hover{
     width: 120px;
     transition: ease-in-out;
+    cursor: pointer;
   }
 
 } 
