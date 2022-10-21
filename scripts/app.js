@@ -53,7 +53,7 @@ function init() {
   let cells = []
   let score = 0
   let state = 'normal'
-  let lives = 3
+  let lives = 1
   let ghostTimers = []
   let active = false
   let highscore
@@ -256,7 +256,7 @@ function init() {
       if (state === 'normal'){
         speed = 170
       } else if (state === 'super'){
-        speed = 1000
+        speed = 500
       }
       clearInterval(this.animationTimer)
       this.animationTimer = setInterval(() => {
@@ -364,18 +364,13 @@ function init() {
         handleMovement(ghost, ghost.currentDirection)
       } else {
         this.currentDirection = false
-        // this.chase(ghost)
       }
     }
     checkCollision(state){
       collision = Math.abs(this.currentPosition - pacman.currentPosition) === 1 || Math.abs(this.currentPosition - pacman.currentPosition) === width
       if (collision){
         if (state === 'normal'){
-          ghostTimers.forEach(timer => {
-            clearInterval(timer)
-          })
-          ghostTimers = []
-          active = false
+          freezeGame()
           if (lives > 1){
             setTimeout(() => {
               lives--
@@ -433,9 +428,10 @@ function init() {
       ghost.srcy = 61
       ghost.addSprite(ghost.currentPosition)
     })
+    addTileColours('blue', 'purple', '#7F00FF', 'navy')
     clearInterval(tileTimer)
     tileTimer = setInterval(() => {
-      addTileColours('blue', 'purple', 'navy', 'navy')
+      addTileColours('blue', 'purple', '#7F00FF', 'navy')
       discoBalls.forEach(ball => {
         ball.classList.toggle('flash')
       })
@@ -500,9 +496,18 @@ function init() {
     })
 
   }
+  function freezeGame(){
+    clearInterval(pacmanTimer)
+    ghostTimers.forEach(timer => {
+      clearInterval(timer)
+      ghostTimers = []
+      active = false
+    })
+  }
 
   function resetGame(){
     clearInterval(tileTimer)
+    document.body.classList.remove('endbackground')
     gridWrapper.classList.remove('grid-wrapper-end')
     while (gridWrapper.lastChild.nodeName === 'P'){
       gridWrapper.removeChild(gridWrapper.lastChild)
@@ -541,7 +546,7 @@ function init() {
     }
   }
   function endGame(result) {
-    clearInterval(pacmanTimer)
+    freezeGame()
     setTimeout(() => {
       ghosts.forEach(ghost => {
         ghost.resetGhost()
@@ -550,6 +555,7 @@ function init() {
       collision = false
       grid.style.display = 'none'
       h2.style.display = 'none'
+      document.body.classList.add('endbackground')
       while (grid.lastChild){
         grid.removeChild(grid.lastChild)
       }
@@ -566,7 +572,7 @@ function init() {
         finalScore.innerHTML = `You completed Disco Pacman and scored</br><span> ${score} </span></br><br/>points`
         if (gotHighscore()){
           localStorage.setItem('highscore', score)
-          message2.innerHTML = `New Highscore! There ain't no stopping you now!<br/><span>${highscore}</span><br/><br/>Highscore`
+          message2.innerHTML = `New Highscore! There ain't no stopping you now!<br/><span>${highscore}</span><br/><br/>Previous Highscore`
           playNewTrack('AintNoStoppingUsNow', '00:01:43')
         } else {
           message2.innerHTML = `So, you rocked the boat... but you're gonna have to keep working on those moves to compete with the elite<br/><span>${highscore}</span><br/><br/>Highscore`
@@ -577,7 +583,7 @@ function init() {
         finalScore.innerHTML = `Looks like you left <span id="funk"> The Funk </span> at home! You got</br><span> ${score} </span></br><br/>points`
         if (gotHighscore()){
           localStorage.setItem('highscore', score)
-          message2.innerHTML = `Highscore!! Looks like the dancing queens all stayed home tonight as well cus you still came out on top...<br/><span>${highscore}</span><br/><br/>Highscore`
+          message2.innerHTML = `Highscore!! Looks like the dancing queens all stayed home tonight as well cus you still came out on top...<br/><span>${highscore}</span><br/><br/>Previous Highscore`
           playNewTrack('DancingQueen', '00:00:22')
         } else {
           message2.innerHTML = `You gotta keep working on those moves to compete with the elite...<br/><span>${highscore}</span><br/><br/>Highscore`
