@@ -53,13 +53,14 @@ function init() {
   let cells = []
   let score = 0
   let state = 'normal'
-  let lives = 1
+  let lives = 3
   let ghostTimers = []
   let active = false
   let highscore
   let pacmanTimer
   let tileTimer
   let superTimer
+  let speakerTimer
   let noDots
 
   class Player {
@@ -74,6 +75,8 @@ function init() {
 
     resetPacman(){
       cells[this.currentPosition].classList.remove(this.cssClass)
+      this.currentDirection = 'right'
+      this.newDirection = 'right'
       this.currentPosition = this.startingPosition
     }
     eatDot(){
@@ -110,17 +113,13 @@ function init() {
       if (this.currentDirection === 'right'){
         this.srcy = pacmanY.right
         firstFrame = pacmanY.right
-        // cells[position].style.backgroundPosition = `${this.srcx}% ${this.srcy.right}%`
       } else if (this.currentDirection === 'left'){
         this.srcy = pacmanY.left
         firstFrame = pacmanY.left
-        // cells[position].style.backgroundPosition = `${this.srcx}% ${this.srcy.left}%`
       } else if (this.currentDirection === 'up'){
         this.srcy = pacmanY.up
         firstFrame = pacmanY.up
-        // cells[position].style.backgroundPosition = `${this.srcx}% ${this.srcy.up}%`
       } else if (this.currentDirection === 'down'){
-        // cells[position].style.backgroundPosition = `${this.srcx}% ${this.srcy.down}%`
         this.srcy = pacmanY.down
         firstFrame = pacmanY.down
       }
@@ -231,36 +230,46 @@ function init() {
       let ghostState
       if (state === 'normal'){
         ghostState = ghostY
+        if (this.currentDirection === 'right'){
+          this.srcy = ghostState.right
+          firstFrame = ghostState.right
+        } else if (this.currentDirection === 'left'){
+          this.srcy = ghostState.left
+          firstFrame = ghostState.left
+        } else if (this.currentDirection === 'up'){
+          this.srcy = ghostState.up
+          firstFrame = ghostState.up
+        } else if (this.currentDirection === 'down'){
+          this.srcy = ghostState.down
+          firstFrame = ghostState.down
+        }
       } else if (state === 'super'){
         ghostState = ghostSuperY
+        if (this.srcy < 89){
+          this.srcy += 5.5
+        } else {
+          this.srcy = ghostState.green
+        }
+        firstFrame = this.srcy
       }
-      if (this.currentDirection === 'right'){
-        this.srcy = ghostState.right
-        firstFrame = ghostState.right
-      } else if (this.currentDirection === 'left'){
-        this.srcy = ghostState.left
-        firstFrame = ghostState.left
-      } else if (this.currentDirection === 'up'){
-        this.srcy = ghostState.up
-        firstFrame = ghostState.up
-      } else if (this.currentDirection === 'down'){
-        this.srcy = ghostState.down
-        firstFrame = ghostState.down
-      }
+     
       cells[position].style.backgroundPosition = `${this.srcx}% ${this.srcy}%`
       cells[position].classList.add(this.cssClass)
       this.animate(firstFrame)
     }
     animate(baseFrame){
       let speed
+      let frameSize
       if (state === 'normal'){
         speed = 170
+        frameSize = 5.2
       } else if (state === 'super'){
-        speed = 500
+        speed = 800
+        frameSize = 5.5
       }
       clearInterval(this.animationTimer)
       this.animationTimer = setInterval(() => {
-        const frameSize = 5.2
+        
         if (this.srcy < (baseFrame + frameSize)){
           this.srcy += frameSize
         } else {
@@ -399,7 +408,8 @@ function init() {
   //INITIATE CHARACTERS
   const pacmanY = { 'right': 5.5, 'down': 22, 'left': 38.5, 'up': 55 }
   const ghostY = { 'right': 0.5, 'down': 11.5, 'left': 22.5, 'up': 33.5 }
-  const ghostSuperY = { 'right': 61.5, 'down': 72.5, 'left': 83.5, 'up': 94.5 }
+  // const ghostSuperY = { 'right': 61.5, 'down': 72.5, 'left': 83.5, 'up': 94.5 }
+  const ghostSuperY = { 'purple': 61.5, 'green': 66.5 }
 
   const pacman = new Player('pacman', 450, 94.4, 0, 'right')
   const ghosts = []
@@ -513,6 +523,7 @@ function init() {
       gridWrapper.removeChild(gridWrapper.lastChild)
     }
     grid.style.display = 'flex'
+    pacman.resetPacman()
     cells = []
     createGrid()
     scoreBoard.style.display = 'flex'
@@ -521,28 +532,32 @@ function init() {
     score = 0
     updateDisplay()
   }
-
+  let initiatedOnce = false
   function startGame(e){
-    if (!active && !collision){
-      if (gridWrapper.classList.contains('grid-wrapper-end')){
-        resetGame()
+    if (!initiatedOnce){
+      initiatedOnce = true
+      if (!active && !collision){
+      
+        if (gridWrapper.classList.contains('grid-wrapper-end')){
+          resetGame()
+        }
+        if (e.code === 'Space' || e.type === 'click'){
+          ghostTimers.forEach(timer => {
+            clearInterval(timer)
+          })
+          ghostTimers = []
+          active = true
+          pacman.currentDirection = 'right'
+          pacman.addSprite(pacman.startingPosition)
+          pacman.moveCurrentDirection(pacman)
+          ghosts.forEach((ghost) => {
+            setTimeout(() => {
+              ghost.exitPen(ghost)
+            }, ghost.delay)
+          })
+        }
       }
-      if (e.code === 'Space' || e.type === 'click'){
-        ghostTimers.forEach(timer => {
-          clearInterval(timer)
-        })
-        ghostTimers = []
-        active = true
-        
-        pacman.addSprite(pacman.startingPosition)
-        pacman.moveCurrentDirection(pacman)
-        // pacman.animatePacman()
-        ghosts.forEach((ghost) => {
-          setTimeout(() => {
-            ghost.exitPen(ghost)
-          }, ghost.delay)
-        })
-      }
+      setTimeout(() => initiatedOnce = false, 5000)
     }
   }
   function endGame(result) {
@@ -627,14 +642,20 @@ function init() {
   function musicSwitch(audio){
     if (audio.paused){
       audio.play()
+      speakerTimer = setInterval(() => {
+        speakers.forEach(speaker => {
+          speaker.classList.toggle('speakerPulse')
+        })
+      }, 500)
     } else {
       audio.pause()
+      clearInterval(speakerTimer)
     }
   }
 
   function playNewTrack(track, timeStamp){
-    superAudio.pause()
-    if (!mainAudio.paused){
+    if (!mainAudio.paused || !superAudio.paused){
+      superAudio.pause()
       mainAudio.src = `./audio/${track}.mp3#t=${timeStamp}`
       mainAudio.play()
     } else {
