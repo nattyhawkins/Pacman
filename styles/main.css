@@ -31,21 +31,13 @@ h2{
 }
 body{
   margin: 0;
-  /* background-color: black; */
-  /* background-image: radial-gradient(black, #0f0f0f, #3b3328, #7e6e56); */
   background-image: radial-gradient(black, #0f0f0f);
-  /* background-image: url('https://static.vecteezy.com/system/resources/thumbnails/002/018/568/original/spot-lighting-with-smoke-effect-on-a-black-background-free-video.jpg'); */
   color: #FFFDD0;
   font-family: Georgia, 'Times New Roman', Times, serif;
   text-align: center;
   width: 100vh;
   font-size: 25px;
 }
-
-.endbackground{
-  background-image: url('https://static.vecteezy.com/system/resources/thumbnails/002/018/568/original/spot-lighting-with-smoke-effect-on-a-black-background-free-video.jpg');
-}
-
 
 #screen{
   display: flex;
@@ -192,7 +184,7 @@ button:hover{
   color: gold;
   cursor: pointer;
 }
-.potion{
+.star{
   background-image: url('../assets/transparent-star-png-2.png');
   background-position: center;
   background-repeat: no-repeat;
