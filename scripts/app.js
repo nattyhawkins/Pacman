@@ -566,7 +566,7 @@ function init() {
       setTimeout(() => initiatedOnce = false, 5000)
     }
   }
-  endGame('won')
+
   function endGame(result) {
     freezeGame()
     setTimeout(() => {
@@ -577,7 +577,7 @@ function init() {
       collision = false
       grid.style.display = 'none'
       h2.style.display = 'none'
-      document.body.style.backgroundImage = 'url(\'../assets/SmokeyBackground.jpeg\')'
+      document.body.style.backgroundImage = 'url(./assets/SmokeyBackground.jpeg)'
       while (grid.lastChild) {
         grid.removeChild(grid.lastChild)
       }
