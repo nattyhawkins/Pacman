@@ -2,7 +2,7 @@
 #### Solo project  |  8 days  |  Vanilla Javascript
 ‘Disco Pacman’ is Pacman, but Disco! A themed version of the classic arcade game. This was my first project completed during the General Assembly Software Engineering Immersive course.
 
-[Visit Site](https://nattyhawkins.github.io/disco-pacman/)
+[Try it out!](https://nattyhawkins.github.io/disco-pacman/)
 
 
 
