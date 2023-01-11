@@ -566,7 +566,7 @@ function init() {
       setTimeout(() => initiatedOnce = false, 5000)
     }
   }
-
+  endGame('won')
   function endGame(result) {
     freezeGame()
     setTimeout(() => {
@@ -594,10 +594,10 @@ function init() {
         finalScore.innerHTML = `You completed Disco Pacman and scored</br><span> ${score} </span></br><br/>points`
         if (gotHighscore()) {
           localStorage.setItem('highscore', score)
-          message2.innerHTML = `New Highscore! There ain't no stopping you now!<br/><span>${highscore}</span><br/><br/>Previous Highscore`
+          message2.innerHTML = `New Highscore! There ain't no stopping you now!<br/><span>${highscore ? highscore : score}</span><br/><br/>${highscore ? 'Previous Highscore' : 'New Highscore!'}}`
           playNewTrack('AintNoStoppingUsNow', '00:01:43')
         } else {
-          message2.innerHTML = `So, you rocked the boat... but you're gonna have to keep working on those moves to compete with the elite<br/><span>${highscore}</span><br/><br/>Highscore`
+          message2.innerHTML = `So, you rocked the boat... but you're gonna have to keep working on those moves to compete with the elite<br/><span>${highscore ? highscore : score}</span><br/><br/>Highscore`
           playNewTrack('RockTheBoat', '00:00:18')
         }
       } else if (result === 'lost') {
@@ -605,10 +605,10 @@ function init() {
         finalScore.innerHTML = `Looks like you left <span id="funk"> The Funk </span> at home! You got</br><span> ${score} </span></br><br/>points`
         if (gotHighscore()) {
           localStorage.setItem('highscore', score)
-          message2.innerHTML = `Highscore!! Looks like the dancing queens all stayed home tonight as well cus you still came out on top...<br/><span>${highscore}</span><br/><br/>Previous Highscore`
+          message2.innerHTML = `Highscore!! Looks like the dancing queens all stayed home tonight as well cus you still came out on top...<br/><span>${highscore ? highscore : score}</span><br/><br/>${highscore ? 'Previous Highscore' : 'New Highscore!'}}`
           playNewTrack('DancingQueen', '00:00:22')
         } else {
-          message2.innerHTML = `You gotta keep working on those moves to compete with the elite...<br/><span>${highscore}</span><br/><br/>Highscore`
+          message2.innerHTML = `You gotta keep working on those moves to compete with the elite...<br/><span>${highscore ? highscore : score}</span><br/><br/>Highscore`
           playNewTrack('CarWash', '00:01:03')
         }
       }
