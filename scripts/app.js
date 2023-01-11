@@ -94,19 +94,6 @@ function init() {
         endGame('won')
       }
     }
-    animate(baseFrame) {
-      clearInterval(this.animationTimer)
-      this.animationTimer = setInterval(() => {
-        const frameSize = 5.5
-        if (this.srcy < (baseFrame + (2 * frameSize))) {
-          this.srcy += frameSize
-        } else {
-          this.srcy = baseFrame
-        }
-        cells[this.currentPosition].style.backgroundPosition = `${this.srcx}% ${this.srcy}%`
-
-      }, 90)
-    }
     addSprite(position) {
       let firstFrame
       if (this.currentDirection === 'right') {
@@ -126,6 +113,19 @@ function init() {
       cells[position].style.backgroundPosition = `${this.srcx}% ${this.srcy}%`
       cells[position].classList.add(this.cssClass)
       this.animate(firstFrame - 5.5)
+    }
+    animate(baseFrame) {
+      clearInterval(this.animationTimer)
+      this.animationTimer = setInterval(() => {
+        const frameSize = 5.5
+        if (this.srcy < (baseFrame + (2 * frameSize))) {
+          this.srcy += frameSize
+        } else {
+          this.srcy = baseFrame
+        }
+        cells[this.currentPosition].style.backgroundPosition = `${this.srcx}% ${this.srcy}%`
+
+      }, 90)
     }
 
     testNewDirection(event) {
@@ -594,7 +594,7 @@ function init() {
         finalScore.innerHTML = `You completed Disco Pacman and scored</br><span> ${score} </span></br><br/>points`
         if (gotHighscore()) {
           localStorage.setItem('highscore', score)
-          message2.innerHTML = `New Highscore! There ain't no stopping you now!<br/><span>${highscore ? highscore : score}</span><br/><br/>${highscore ? 'Previous Highscore' : 'New Highscore!'}}`
+          message2.innerHTML = `New Highscore! There ain't no stopping you now!<br/><span>${highscore ? highscore : score}</span><br/><br/>${highscore ? 'Previous Highscore' : 'New Highscore!'}`
           playNewTrack('AintNoStoppingUsNow', '00:01:43')
         } else {
           message2.innerHTML = `So, you rocked the boat... but you're gonna have to keep working on those moves to compete with the elite<br/><span>${highscore ? highscore : score}</span><br/><br/>Highscore`
@@ -605,7 +605,7 @@ function init() {
         finalScore.innerHTML = `Looks like you left <span id="funk"> The Funk </span> at home! You got</br><span> ${score} </span></br><br/>points`
         if (gotHighscore()) {
           localStorage.setItem('highscore', score)
-          message2.innerHTML = `Highscore!! Looks like the dancing queens all stayed home tonight as well cus you still came out on top...<br/><span>${highscore ? highscore : score}</span><br/><br/>${highscore ? 'Previous Highscore' : 'New Highscore!'}}`
+          message2.innerHTML = `Highscore!! Looks like the dancing queens all stayed home tonight as well cus you still came out on top...<br/><span>${highscore ? highscore : score}</span><br/><br/>${highscore > 0 ? 'Previous Highscore' : 'New Highscore!'}`
           playNewTrack('DancingQueen', '00:00:22')
         } else {
           message2.innerHTML = `You gotta keep working on those moves to compete with the elite...<br/><span>${highscore ? highscore : score}</span><br/><br/>Highscore`
