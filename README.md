@@ -12,6 +12,12 @@
 - CSS3
 
 
+## Controls
+- Hit spacebar or click the start button at the bottom of the screen to begin
+- Control pacman's direction with the arrow keys and collect all of the disco dots
+- Avoid the ghosts! Red and blue will chase you, pink and orange are just here for a good time
+- Be invincible for 10s with the gold stars. Catch the flashing ghosts for extra points.
+
 
 ## Brief
 - To design and build a grid-based game rendered using DOM element manipulation
